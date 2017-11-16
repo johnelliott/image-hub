@@ -20,18 +20,24 @@ app.set('view engine', 'pug')
 
 // TODO stick auth middleware in here?
 
-app.use('/posts/:image', function (req, res, next) {
-  const imagePath = path.join('/media/rated', req.params.image)
-  const imageMattPath = '/media/crops'
-  const redirectFileName = path.join('/media/crops', req.params.image)
-  // call function
+app.use('/posts/:folder/:image', function (req, res, next) {
+  const imagePath = path.join('/media/card/DCIM/', req.params.folder, req.params.image)
+  const imageMattPath = path.join('/media/crops', req.params.image)
+  debug('maattt path', imageMattPath)
   matt(imagePath, imageMattPath).then(() => {
-    // redirect
-    res.end(redirectFileName)
+    res.redirect(`http://photon.local/crops/${req.params.image}`)
   })
 })
 app.use('/posts', function (req, res, next) {
-  const list = fs.readdirSync(path.join(__dirname, 'public'))
+  const listFolders = fs.readdirSync(path.join('/media/card/DCIM/'))
+  debug('flders', listFolders)
+  const list = listFolders.map(f => {
+    return fs.readdirSync(path.join(`/media/card/DCIM/${f}`))
+      .map(photoname => `${f}/${photoname}`)
+      .filter(fname => new RegExp(/jpg/, 'i').test(fname))
+  })
+    .reduce((prev, curr) => prev.concat(curr))
+  debug('list', list)
   res.render('list', { list })
 })
 
