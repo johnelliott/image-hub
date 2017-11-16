@@ -1,0 +1,33 @@
+const debug = require('debug')('storycrop:template:matt-story') // eslint-disable-line no-unused-vars
+const gm = require('gm')
+
+// 1080x1920 on colored matt
+
+function mattStory (img, destinationPath) {
+  debug(img)
+  return new Promise((resolve, reject) => {
+    debug('destinationPath', destinationPath)
+
+    gm(img)
+      .resize(1080, '>')
+      .background('#050B12') // Deep non-black blue
+      .gravity('Center')
+      .extent(1080, 1920)
+      .write(destinationPath, (err) => {
+        if (err) reject(err)
+        debug('image ok', destinationPath)
+        resolve(destinationPath)
+      })
+  })
+    .catch(reason => {
+      debug('problem matting with gm', reason)
+    })
+}
+
+if (require.main === module) {
+  const argv = process.argv.slice(2)
+  debug(argv)
+  mattStory(argv[0], argv[1])
+}
+
+module.exports = mattStory

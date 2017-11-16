@@ -1,0 +1,7 @@
+extends layout.pug
+block content
+  h2 🖼 #{list.length}  
+  ul
+    each val in list
+      li
+        a(href='/posts/' + val) #{val}

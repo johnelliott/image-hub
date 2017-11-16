@@ -1,0 +1,16 @@
+node_modules
+certs/
+.npmrc
+.nvmrc
+.env
+.editorconfig
+public/**/*.gz
+public/*.html
+public/**/*.map
+public/**/*.js*
+public/**/*.css*
+*.mov
+*.txt
+scratch
+dump.rdb
+tmp/**
