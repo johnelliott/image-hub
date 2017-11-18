@@ -15,14 +15,11 @@ html
     block header
       nav
         h1
-          a(href='/' title='home')
-            span(class='huge') 📸
-            span  Photon
+          a(href='/' title='share')
+            span 📷 #{list.length}
       block content
-      footer
-        ul
-          li
-            a(href='mailto:johnelliott703@gmail.com') Contact
+      footer(class='footer')
+        a(href= '#') ⬆️
     |<script async defer>
     |  if ('serviceWorker' in navigator) {
     |    navigator.serviceWorker

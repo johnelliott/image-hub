@@ -1,10 +1,8 @@
 extends layout.pug
 block content
-  h2 🖼 #{list.length}  
   div(class= 'image-container')
-    each val in list
-      ul
-        - var href = val.href;
-        - var src = val.b64i;
-        a(href= href)
-          img(src=`data:image/jpg;base64,${src}`)
+    ul
+      each val in list
+        li(class= 'image-thumb')
+          a(href= val.href)
+            img(src= val.b64i)

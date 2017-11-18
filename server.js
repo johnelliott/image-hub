@@ -2,11 +2,16 @@ const debug = require('debug')('storycrops')
 const path = require('path')
 const express = require('express')
 const matt = require('./treatments/matt-story.js')
-const listThumbs = require('./lib/exifjson.js')
+const listThumbs = require('./lib/get-thumbs.js')
+const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 
 require('dotenv').config()
-const CARD_PATH = process.env.CARD_PATH || '/Users/john/code/insta/fixtures/DCIM'
-const CROP_PATH = process.env.CROP_PATH || '/Users/john/code/story-crops/crops'
+const CARD_PATH = process.env.CARD_PATH
+const CROP_PATH = process.env.CROP_PATH
+if (!CARD_PATH || !CROP_PATH) {
+  debug(new Error('no CROP_PATH or CARD_PATH'))
+  process.exit(1)
+}
 
 var app = express()
 app.disable('x-powered-by')
@@ -28,12 +33,14 @@ app.use('/:folder/:image', function (req, res, next) {
 app.use('/', function (req, res, next) {
   listThumbs(CARD_PATH)
     .then(list => {
-      const filtered = list.filter(l => l).map(l => {
-        return {
-          href: path.relative(CARD_PATH, l.SourceFile),
-          b64i: l.ThumbnailImage.slice(7)
-        }
-      })
+      const filtered = list
+        .filter(l => l) // remove null/falsey results
+        .map(l => {
+          return {
+            href: path.relative(CARD_PATH, l.SourceFile),
+            b64i: formatBase64(l.ThumbnailImage)
+          }
+        })
       res.render('list', { list: filtered })
     })
 })
