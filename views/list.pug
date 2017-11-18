@@ -3,5 +3,8 @@ block content
   h2 🖼 #{list.length}  
   ul
     each val in list
-      li
-        a(href='/' + val) #{val}
+      ul
+        - var href = val.href;
+        - var src = val.b64i;
+        a(href= href)
+          img(src=`data:image/jpg;base64,${src}`)
