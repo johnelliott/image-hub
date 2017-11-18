@@ -1,7 +1,7 @@
 extends layout.pug
 block content
   h2 🖼 #{list.length}  
-  ul
+  div(class= 'image-container')
     each val in list
       ul
         - var href = val.href;

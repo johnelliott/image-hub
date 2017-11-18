@@ -1,0 +1,20 @@
+body {
+  color: lightgrey;
+  background: black;
+}
+
+h1,h2,h3 {
+  text-align: center;
+}
+.image-container {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-flow: wrap;
+}
+
+img {
+  padding: 2px;
+  border: 1px solid darkgrey;
+  flex-basis: 33%;
+}
