@@ -8,6 +8,7 @@ function mattPhotoPortrait (img, destinationPath) {
     debug('destinationPath', destinationPath)
 
     gm(img)
+      .autoOrient()
       .resize(1536, '>')
       .background('white')
       .gravity('Center')

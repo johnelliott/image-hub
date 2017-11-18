@@ -9,10 +9,12 @@ function mattStory (img, destinationPath) {
     debug('destinationPath', destinationPath)
 
     gm(img)
+      .autoOrient()
       .resize(1080, '>')
       .background('#050B12') // Deep non-black blue
       .gravity('Center')
       .extent(1080, 1920)
+      .noProfile()
       .write(destinationPath, (err) => {
         if (err) reject(err)
         debug('image ok', destinationPath)
