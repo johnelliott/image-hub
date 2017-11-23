@@ -5,6 +5,8 @@ After=network.target
 
 [Service]
 Environment=NODE_PORT=3000
+Environment=CARD_PATH=/media/card/DCIM
+Environment=CROP_PATH=/media/crops
 Type=simple
 User=pi
 ExecStart=/home/pi/.nvm/versions/node/v8.9.1/bin/node /home/pi/story-crops/bin/www
