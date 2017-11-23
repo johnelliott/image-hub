@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "DEBUG=storycrops NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
+    "etl": "DEBUG=story* NODE_ENV=development node_modules/nodemon/bin/nodemon.js exif_image-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,7 +19,10 @@
     "gm": "^1.23.0",
     "listdirs": "^3.0.0",
     "node-exiftool": "^2.3.0",
-    "pug": "^2.0.0-rc.4"
+    "node-watch": "^0.5.5",
+    "pug": "^2.0.0-rc.4",
+    "recursive-readdir": "^2.2.1",
+    "sqlite3": "^3.1.13"
   },
   "devDependencies": {
     "nodemon": "^1.12.1",
