@@ -9,6 +9,8 @@ public/*.html
 public/**/*.map
 public/**/*.js*
 public/**/*.css*
+fixtures/
+data/
 *.mov
 *.txt
 scratch

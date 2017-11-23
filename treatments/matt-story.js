@@ -1,4 +1,4 @@
-const debug = require('debug')('storycrop:template:matt-story') // eslint-disable-line no-unused-vars
+const debug = require('debug')('hub:template:matt-story') // eslint-disable-line no-unused-vars
 const gm = require('gm')
 
 // 1080x1920 on colored matt

@@ -1,4 +1,4 @@
-const debug = require('debug')('storycrop:server')
+const debug = require('debug')('hub:server')
 const path = require('path')
 const express = require('express')
 const matt = require('./treatments/matt-story.js')
@@ -11,7 +11,7 @@ require('dotenv').config()
 const CARD_PATH = process.env.CARD_PATH
 const CROP_PATH = process.env.CROP_PATH
 if (!CARD_PATH || !CROP_PATH) {
-  debug(new Error('no CROP_PATH or CARD_PATH'))
+  console.error(new Error('no CROP_PATH or CARD_PATH'))
   process.exit(1)
 }
 
@@ -32,6 +32,7 @@ app.use('/:folder/:image', function (req, res, next) {
   })
 })
 
+// This is the old one sync
 app.use('/gallery', function (req, res, next) {
   listThumbs(CARD_PATH)
     .then(list => {
@@ -69,32 +70,35 @@ app.use('/', function (req, res, next) {
   const pageSize = 5
   const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   debug('offset', offset)
-  db(path.join(__dirname, 'cam.db'))
+  const cardPath = path.join(__dirname, 'cam.db')
+  debug('card path', cardPath)
+  db(cardPath)
     .then(db => db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
       if (err) {
         debug(err)
         return res.status(404).end(err)
       }
       debug('db got', result)
-      result.map(i => {
+      const list = result.map(i => {
         return {
           name: i.file_name,
           dateTimeCreated: i.date_time_created,
-          thumbnail: i.thumbnail
+          href: path.relative(CARD_PATH, i.file_name),
+          b64i: formatBase64(i.thumbnail)
         }
       })
       // TODO support status codes for no content when we page out...
       debug('WHAT MIME TYPE', req.headers)
       // res.json(result)
       return res.format({
-        'text/plain': function () {
-          res.render('list', { list })
-        },
         'text/html': function () {
           res.render('list', { list })
         },
+        'text/plain': function () {
+          res.render('list', { list })
+        },
         'application/json': function () {
-          res.json(result)
+          res.json(list)
         },
         'default': function () {
           // log the request and respond with 406
