@@ -2,9 +2,7 @@ const debug = require('debug')('hub:server')
 const path = require('path')
 const express = require('express')
 const matt = require('./treatments/matt-story.js')
-const getJpegs = require('./lib/get-jpegs.js')
 const db = require('./lib/db.js')
-const listThumbs = require('./lib/get-thumbs.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 
 require('dotenv').config()
@@ -14,6 +12,9 @@ if (!CARD_PATH || !CROP_PATH) {
   console.error(new Error('no CROP_PATH or CARD_PATH'))
   process.exit(1)
 }
+
+const dbPath = path.join(__dirname, 'cam.db')
+debug('db path', dbPath)
 
 var app = express()
 app.disable('x-powered-by')
@@ -32,35 +33,23 @@ app.use('/:folder/:image', function (req, res, next) {
   })
 })
 
-// This is the old one sync
-app.use('/gallery', function (req, res, next) {
-  listThumbs(CARD_PATH)
-    .then(list => {
-      const filtered = list
-        .filter(l => l) // remove null/falsey results
-        .map(l => {
-          return {
-            href: path.relative(CARD_PATH, l.SourceFile),
-            b64i: formatBase64(l.ThumbnailImage)
-          }
-        })
-      res.render('list', { list: filtered })
-    })
+/**
+ * Redirect to an image in the database to get served by nginx
+ */
+app.use('/:image', function (req, res, next) {
+  debug('image', req.params.image)
+  db(dbPath)
+    .then(db => db.get(`SELECT full_path FROM image WHERE file_name = "${req.params.image}"`, (err, result) => {
+      if (err) {
+        debug(err)
+        return res.status(404).end(err)
+      }
+      res.redirect(path.join('localhost:80', path.relative(CARD_PATH, result.full_path)))
+    }))
 })
 
-app.use('/posts', function (req, res, next) {
-  // const listFolders = fs.readdirSync(path.join('/media/card/DCIM/'))
-  const list = getJpegs('/media/card/DCIM')
-  // const list = listFolders.map(f => {
-  //   return fs.readdirSync(path.join(`/media/card/DCIM/${f}`))
-  //     .map(photoname => `${f}/${photoname}`)
-  //     .filter(fname => new RegExp(/jpg/, 'i').test(fname))
-  // })
-  debug('list', list)
-  res.render('list', { list })
-})
-
-/** image database api
+/**
+ * Get a gallery or JSON for gallery
  * page lenght is 5
  * query param is page
  * resolves with array of SELECT * from image table
@@ -70,9 +59,7 @@ app.use('/', function (req, res, next) {
   const pageSize = 5
   const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   debug('offset', offset)
-  const cardPath = path.join(__dirname, 'cam.db')
-  debug('card path', cardPath)
-  db(cardPath)
+  db(dbPath)
     .then(db => db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
       if (err) {
         debug(err)
