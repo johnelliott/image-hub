@@ -1,16 +1,16 @@
 {
-  "name": "story-crops",
+  "name": "image-hub",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "LAN JPEG server and transformer",
+  "main": "server.js",
   "scripts": {
     "start": "DEBUG=hub:server NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
     "etl": "DEBUG=story* NODE_ENV=development node_modules/nodemon/bin/nodemon.js etl.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["image", "local"],
   "author": "John Elliott <johnelliott703@gmail.com> (http://primitivemachine.com/)",
-  "license": "MIT",
+  "license": "",
   "dependencies": {
     "debug": "^3.1.0",
     "dotenv": "^4.0.0",
