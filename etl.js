@@ -4,11 +4,20 @@ const Sqlite3 = require('sqlite3').verbose()
 const exiftool = require('node-exiftool')
 const watch4jpegs = require('./lib/watch.js')
 
-const ep = new exiftool.ExiftoolProcess('/usr/local/bin/exiftool')
+require('dotenv').config()
 
-// Environment variables
-// DB_PATH
-// SCAN_DIR
+const STORAGE_PATH = process.env.STORAGE_PATH
+if (!STORAGE_PATH) {
+  console.error(new Error('no STORAGE_PATH'))
+  process.exit(1)
+}
+const EXIFTOOL_PATH = process.env.EXIFTOOL_PATH
+if (!EXIFTOOL_PATH) {
+  console.error(new Error('no EXIFTOOL_PATH'))
+  process.exit(1)
+}
+
+const ep = new exiftool.ExiftoolProcess(process.env.EXIFTOOL_PATH)
 
 const createImages = `CREATE TABLE image (
   id INTEGER PRIMARY KEY,
@@ -64,7 +73,7 @@ function getImgData (path) {
   ep
     .open()
     .then(pid => debug('Started exiftool process %s', pid))
-    .then(() => ep.readMetadata(path, ['b']))
+    .then(() => ep.readMetadata(path, ['b', 'FileName', 'ThumbnailImage', 'DateTimeOriginal']))
     .then(result => {
       // create db entry
       debug(result.data)
@@ -86,7 +95,7 @@ function getImgData (path) {
 // *******************************
 
 if (require.main === module) {
-  watch4jpegs(path.join(__dirname, 'data'), getImgData)
+  watch4jpegs(STORAGE_PATH, getImgData)
 }
 
 exports.addImageToDatabase = addImageToDatabase
