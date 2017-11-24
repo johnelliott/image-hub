@@ -17,7 +17,7 @@ if (!EXIFTOOL_PATH) {
   process.exit(1)
 }
 
-const ep = new exiftool.ExiftoolProcess(process.env.EXIFTOOL_PATH)
+const ep = new exiftool.ExiftoolProcess(EXIFTOOL_PATH)
 
 const createImages = `CREATE TABLE image (
   id INTEGER PRIMARY KEY,
