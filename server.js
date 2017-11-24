@@ -7,9 +7,13 @@ const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 
 require('dotenv').config()
 const CARD_PATH = process.env.CARD_PATH
+if (!CARD_PATH) {
+  console.error(new Error('CARD_PATH'))
+  process.exit(1)
+}
 const CROP_PATH = process.env.CROP_PATH
-if (!CARD_PATH || !CROP_PATH) {
-  console.error(new Error('no CROP_PATH or CARD_PATH'))
+if (!CROP_PATH) {
+  console.error(new Error('no CROP_PATH'))
   process.exit(1)
 }
 
