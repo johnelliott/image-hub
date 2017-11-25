@@ -17,8 +17,6 @@ if (!EXIFTOOL_PATH) {
   process.exit(1)
 }
 
-const ep = new exiftool.ExiftoolProcess(EXIFTOOL_PATH)
-
 const createImages = `CREATE TABLE image (
   id INTEGER PRIMARY KEY,
   file_name NOT NULL,
@@ -64,21 +62,36 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }
   )
 }
 
+
+
 function getImgData (path) {
-  ep
+  const ep = new exiftool.ExiftoolProcess(EXIFTOOL_PATH)
+  // Add close listener
+  ep.on(exiftool.events.EXIT, () => {
+    debug('exiftool process exited')
+  })
+
+  // Open an exiftool process
+  const openExiftoolProcess = ep
     .open()
-    .then(pid => debug('Started exiftool process %s', pid))
-    .then(() => ep.readMetadata(path, ['b', 'FileName', 'ThumbnailImage', 'DateTimeOriginal']))
+    .then(pid => {
+      debug('Started exiftool process %s', pid)
+      return ep
+    })
+
+  openExiftoolProcess.then(() => {
+    return ep.readMetadata(path, ['b', 'FileName', 'ThumbnailImage', 'DateTimeOriginal', 'if \'-ThumbnailImage\''])
+  })
     .then(result => {
       // create db entry
-      debug(result.data)
+      // debug(result.data)
       const model = {
         fileName: result.data[0].FileName,
         dateTimeOriginal: exifDateTimeToSQLite3Time(result.data[0].DateTimeOriginal),
         fullPath: path,
         thumbnail: result.data[0].ThumbnailImage
       }
-      debug('model to add', model)
+      debug('model path to add', model.fullPath)
       return addImageToDatabase(model)
     })
     .then(() => ep.close())
