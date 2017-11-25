@@ -1,8 +1,9 @@
 const debug = require('debug')('hub:etl')
 const path = require('path')
-const Sqlite3 = require('sqlite3').verbose()
+const sqlite3 = require('sqlite3').verbose()
 const exiftool = require('node-exiftool')
 const watch4jpegs = require('./lib/watch.js')
+const createImages = require('./lib/schema.js').createImages
 
 require('dotenv').config()
 
@@ -17,15 +18,8 @@ if (!EXIFTOOL_PATH) {
   process.exit(1)
 }
 
-const createImages = `CREATE TABLE image (
-  id INTEGER PRIMARY KEY,
-  file_name NOT NULL,
-  date_time_created datetime NOT NULL,
-  full_path UNIQUE NOT NULL,
-  thumbnail TEXT NOT NULL
-);`
 
-const db = new Sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
+const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
   if (err) {
     return debug('db open error', err)
   }

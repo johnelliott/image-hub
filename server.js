@@ -1,8 +1,9 @@
 const debug = require('debug')('hub:server')
 const path = require('path')
 const express = require('express')
+const sqlite3 = require('sqlite3').verbose()
+const createImages = require('./lib/schema.js').createImages
 const matt = require('./treatments/matt-story.js')
-const db = require('./lib/db.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 
 require('dotenv').config()
@@ -17,8 +18,19 @@ if (!CROP_PATH) {
   process.exit(1)
 }
 
-const dbPath = path.join(__dirname, 'cam.db')
-debug('db path', dbPath)
+const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
+  if (err) {
+    return debug('db open error', err)
+  }
+  debug('db open')
+  return db.run(createImages, (err, result) => {
+    if (err && err.message.match(/table image already exists/)) {
+      debug('image table exists')
+    } else if (err) {
+      return debug('db create iamge table error', err)
+    }
+  })
+})
 
 var app = express()
 app.disable('x-powered-by')
@@ -45,14 +57,13 @@ app.use('/:folder/:image', function (req, res, next) {
  */
 app.use('/:image', function (req, res, next) {
   debug('image', req.params.image)
-  db(dbPath)
-    .then(db => db.get(`SELECT full_path FROM image WHERE file_name = "${req.params.image}"`, (err, result) => {
-      if (err) {
-        debug(err)
-        return res.status(404).end(err)
-      }
-      res.redirect(path.join('localhost:80', path.relative(CARD_PATH, result.full_path)))
-    }))
+  db.get(`SELECT full_path FROM image WHERE file_name = "${req.params.image}"`, (err, result) => {
+    if (err) {
+      debug(err)
+      return res.status(404).end(err)
+    }
+    res.redirect(path.join('localhost:80', path.relative(CARD_PATH, result.full_path)))
+  })
 })
 
 /**
@@ -62,43 +73,44 @@ app.use('/:image', function (req, res, next) {
  */
 const pageSize = (3 * 6)
 app.use('/', function (req, res, next) {
-  debug('page', req.query.page)
-  const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
-  debug('offset', offset)
-  db(dbPath)
-    .then(db => db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
-      if (err) {
-        debug(err)
-        return res.status(404).end(err)
+  // // TODO add back paging
+  // debug('page', req.query.page)
+  // const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
+  // debug('offset', offset)
+    // db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
+  db.all('SELECT * from image limit 12', (err, result) => {
+    if (err) {
+      debug(err)
+      return res.status(404).end(err)
+    }
+    debug('db got', result.length)
+    const list = result.map(i => {
+      return {
+        name: i.file_name,
+        dateTimeCreated: i.date_time_created,
+        href: path.relative(CARD_PATH, i.file_name),
+        b64i: formatBase64(i.thumbnail)
       }
-      debug('db got', result)
-      const list = result.map(i => {
-        return {
-          name: i.file_name,
-          dateTimeCreated: i.date_time_created,
-          href: path.relative(CARD_PATH, i.file_name),
-          b64i: formatBase64(i.thumbnail)
-        }
-      })
-      // TODO support status codes for no content when we page out...
-      debug('WHAT MIME TYPE', req.headers)
-      // res.json(result)
-      return res.format({
-        'text/html': function () {
-          res.render('list', { list })
-        },
-        'text/plain': function () {
-          res.render('list', { list })
-        },
-        'application/json': function () {
-          res.json(list)
-        },
-        'default': function () {
-          // log the request and respond with 406
-          res.status(406).send('Not Acceptable')
-        }
-      })
-    }))
+    })
+    // TODO support status codes for no content when we page out...
+    debug('WHAT MIME TYPE', req.headers)
+    // res.json(result)
+    return res.format({
+      'text/html': function () {
+        res.render('list', { list })
+      },
+      'text/plain': function () {
+        res.render('list', { list })
+      },
+      'application/json': function () {
+        res.json(list)
+      },
+      'default': function () {
+        // log the request and respond with 406
+        res.status(406).send('Not Acceptable')
+      }
+    })
+  })
 })
 
 // catch 404 and forward to error handler
