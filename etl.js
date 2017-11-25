@@ -21,52 +21,47 @@ const ep = new exiftool.ExiftoolProcess(EXIFTOOL_PATH)
 
 const createImages = `CREATE TABLE image (
   id INTEGER PRIMARY KEY,
-  file_name NOT NULL DEFAULT '',
+  file_name NOT NULL,
   date_time_created datetime NOT NULL,
-  full_path NOT NULL DEFAULT '',
-  thumbnail TEXT
+  full_path UNIQUE NOT NULL,
+  thumbnail TEXT NOT NULL
 );`
+
+const db = new Sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
+  if (err) {
+    return debug('db open error', err)
+  }
+  debug('db open')
+  return db.run(createImages, (err, result) => {
+    if (err && err.message.match(/table image already exists/)) {
+      debug('image table exists')
+    } else if (err) {
+      return debug('db create iamge table error', err)
+    }
+  })
+})
 
 function exifDateTimeToSQLite3Time (time) {
   return [time.split(' ')[0].split(':').join('-'), time.split(' ')[1]].join(' ')
 }
 
-function getDatabase (path) {
-  return new Promise((resolve, reject) => {
-    const db = new Sqlite3
-      .Database(path, (err, result) => {
-        if (err) {
-          return debug('db open error', err)
-        }
-        debug('db open')
-        return db.run(createImages, (err, result) => {
-          if (err && err.message.match(/table image already exists/)) {
-            return resolve(db)
-          } else if (err) {
-            return debug('createImages error', err)
-          }
-          debug('createImages')
-          resolve(db)
-        })
-      })
-  })
-}
-
 function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }) {
-  return getDatabase(path.join(__dirname, 'cam.db'))
-    .then(db => {
-      db.run(`INSERT INTO image (
+  debug('Running insert', fileName)
+  db.run(
+    `INSERT OR REPLACE INTO image (
+      'id',
       'file_name',
       'date_time_created',
       'full_path',
       'thumbnail'
     ) values (
+      (SELECT id FROM image WHERE full_path = '${fullPath}'),
       '${fileName}',
       '${dateTimeOriginal}',
       '${fullPath}',
       '${thumbnail}'
-    );`)
-    })
+    );`
+  )
 }
 
 function getImgData (path) {
@@ -89,10 +84,6 @@ function getImgData (path) {
     .then(() => ep.close())
     .catch(debug)
 }
-
-// *******************************
-// RUN RUN RUN RUN RUN RUN RUN RUN
-// *******************************
 
 if (require.main === module) {
   watch4jpegs(STORAGE_PATH, getImgData)
