@@ -4,12 +4,16 @@
   "description": "LAN JPEG server and transformer",
   "main": "server.js",
   "scripts": {
-    "start": "DEBUG=hub:server NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
+    "start": "DEBUG=hub:* NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "db:reset": "rm -f cam.db && touch cam.db",
+    "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["image", "local"],
+  "keywords": [
+    "image",
+    "local"
+  ],
   "author": "John Elliott <johnelliott703@gmail.com> (http://primitivemachine.com/)",
   "license": "",
   "dependencies": {

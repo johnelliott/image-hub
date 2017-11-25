@@ -2,8 +2,8 @@ const debug = require('debug')('hub:etl')
 const path = require('path')
 const sqlite3 = require('sqlite3').verbose()
 const exiftool = require('node-exiftool')
-const watch4jpegs = require('./lib/watch.js')
 const createImages = require('./lib/schema.js').createImages
+const watch4jpegs = require('./lib/watch.js')
 
 require('dotenv').config()
 
@@ -12,12 +12,13 @@ if (!STORAGE_PATH) {
   console.error(new Error('no STORAGE_PATH'))
   process.exit(1)
 }
+debug('STORAGE_PATH', STORAGE_PATH)
 const EXIFTOOL_PATH = process.env.EXIFTOOL_PATH
 if (!EXIFTOOL_PATH) {
   console.error(new Error('no EXIFTOOL_PATH'))
   process.exit(1)
 }
-
+debug('EXIFTOOL_PATH', EXIFTOOL_PATH)
 
 const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
   if (err) {
@@ -55,8 +56,6 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }
     );`
   )
 }
-
-
 
 function getImgData (path) {
   const ep = new exiftool.ExiftoolProcess(EXIFTOOL_PATH)
