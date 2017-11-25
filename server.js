@@ -26,6 +26,9 @@ app.set('env', process.env.NODE_ENV)
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
+app.use('/favicon.ico', function (req, res, next) {
+    res.status(404).end()
+})
 app.use('/:folder/:image', function (req, res, next) {
   debug('folder', req.params.folder)
   debug('image', req.params.image)
@@ -54,13 +57,12 @@ app.use('/:image', function (req, res, next) {
 
 /**
  * Get a gallery or JSON for gallery
- * page lenght is 5
  * query param is page
  * resolves with array of SELECT * from image table
  */
+const pageSize = (3 * 6)
 app.use('/', function (req, res, next) {
   debug('page', req.query.page)
-  const pageSize = 5
   const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   debug('offset', offset)
   db(dbPath)

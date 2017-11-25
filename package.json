@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "DEBUG=hub:server NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
-    "etl": "DEBUG=story* NODE_ENV=development node_modules/nodemon/bin/nodemon.js etl.js",
+    "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
+    "db:reset": "rm -f cam.db && touch cam.db",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["image", "local"],
