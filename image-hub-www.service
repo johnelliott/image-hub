@@ -3,10 +3,6 @@ Description=Image hub LAN server
 After=network.target
 
 [Service]
-#Environment=CARD_PATH=/media/card
-#Environment=CROP_PATH=/media/crops
-#Environment=STORAGE_PATH=/media/storage
-#Environment=EXIFTOOL_PATH=/usr/bin/exiftool
 EnvironmentFile=/home/pi/image-hub/.env
 Type=simple
 ExecStart=/home/pi/.nvm/versions/node/v8.9.1/bin/node /home/pi/image-hub/bin/www
