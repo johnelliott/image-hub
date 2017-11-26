@@ -3,6 +3,9 @@ block content
   div(class= 'image-container')
     ul
       each val in list
-        li(class= 'image-thumb')
-          a(href= val.href)
-            img(src= val.b64i)
+        li(class='image-thumb')
+          a(class='image-link' href=val.igStoryHref)
+            img(src=val.b64i)
+          div(class='image-thumb__crops')
+            a(class='image-thumb__icon' alt='full size' href=val.fullHref) 💯
+            a(class='image-thumb__icon' alt='instagra story' href=val.igStoryHref) 📖
