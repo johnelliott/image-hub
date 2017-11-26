@@ -41,46 +41,31 @@ app.set('env', process.env.NODE_ENV)
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
-app.use('/test/:maybe?/:yah', function (req, res, next) {
-  res.json(req.params)
-})
-
-app.use('/favicon.ico', function (req, res, next) {
-  res.status(404).end()
-})
-
 /**
  * Redirect to an image in the database to get served by nginx
  */
-app.get('/:crop/:image', function (req, res, next) {
+app.get('/stories/:image', function (req, res, next) {
   debug('image', req.params.image)
   db.get(`SELECT full_path, file_name FROM image WHERE file_name = "${req.params.image}"`, (err, result) => {
     if (err) {
-      debug(err)
-      return res.status(404).end(err)
+      return next(err)
+    }
+    if (!result) {
+      debug('no image data')
+      return next()
     }
     debug('found image', result)
-
-    if (req.params.crop && req.params.crop === 'stories') {
-      debug('story wanted')
-      const imageMattPath = path.join(STORIES_PATH, result.file_name)
-      debug('matt path', imageMattPath)
-      return matt(result.full_path, imageMattPath).then(() => {
-        // const redirectUrl = path.relative(path.join(__dirname, 'crops'), imageMattPath)
-        // debug('matt redirectUrl', redirectUrl)
-        debug('calling next')
-        next()
-      })
-    }
-    // // Redirect to basic image
-    // const redirectUrl = `http://${path.join(HOSTNAME, path.relative(__dirname, result.full_path))}`
-    // debug('redirectUrl', redirectUrl)
-    // res.redirect(redirectUrl)
+    const imageMattPath = path.join(STORIES_PATH, result.file_name)
+    debug('matt path', imageMattPath)
+    return matt(result.full_path, imageMattPath).then(() => {
+      debug('calling next')
+      next()
+    })
   })
 })
 // Serve form stories after done generating a stort matt image
 app.use('/stories/', express.static(STORIES_PATH))
-// app.use(express.static(STORAGE_PATH))
+
 /**
  * Get a gallery or JSON for gallery
  * query param is page
@@ -88,14 +73,14 @@ app.use('/stories/', express.static(STORIES_PATH))
  */
 app.get('/', function (req, res, next) {
   // TODO add back paging
-  const pageSize = (3 * 5)
+  // const pageSize = (3 * 5)
   // debug('page', req.query.page)
-  const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
+  // const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   // debug('offset', offset)
-  db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
+  // db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
+  db.all(`SELECT * from image`, (err, result) => {
     if (err) {
-      debug(err)
-      return res.status(404).end(err)
+      next(err)
     }
     debug('Found %s photos', result.length)
     // If we get no content
@@ -130,9 +115,7 @@ app.get('/', function (req, res, next) {
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  var err = new Error('Not Found')
-  err.status = 404
-  next(err)
+  return res.status(404).end()
 })
 
 // Error handlers
