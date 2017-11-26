@@ -65,6 +65,8 @@ app.get('/stories/:image', function (req, res, next) {
 })
 // Serve form stories after done generating a stort matt image
 app.use('/stories/', express.static(STORIES_PATH))
+// This should rarely/never get used except in dev
+app.use('/storage/', express.static(STORAGE_PATH))
 
 /**
  * Get a gallery or JSON for gallery
@@ -78,7 +80,7 @@ app.get('/', function (req, res, next) {
   // const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   // debug('offset', offset)
   // db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
-  db.all(`SELECT * from image`, (err, result) => {
+  db.all(`SELECT file_name, thumbnail from image`, (err, result) => {
     if (err) {
       next(err)
     }
@@ -90,8 +92,8 @@ app.get('/', function (req, res, next) {
     const list = result.map(i => {
       return {
         name: i.file_name,
-        dateTimeCreated: i.date_time_created,
-        href: `/stories/${i.file_name}`,
+        fullHref: `/${path.basename(STORAGE_PATH)}/${i.file_name}`,
+        igStoryHref: `/${path.basename(STORIES_PATH)}/${i.file_name}`,
         b64i: formatBase64(i.thumbnail)
       }
     })
