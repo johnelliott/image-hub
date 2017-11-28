@@ -43,6 +43,14 @@ a {
   justify-content: center;
   align-items: center;
 }
+.image-link:active::before {
+  content: "⏳";
+  padding: 0.8em;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.95);
+  position: absolute;
+  pointer-events: none;
+}
 @media (min-width: 376px) {
   .image-link {
     width: auto;
@@ -77,6 +85,13 @@ a {
 }
 .image-thumb__icon {
   margin: 0 0.25em;
+}
+.image-thumb__icon:active::before {
+  content: "⏳";
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.6);
+  position: absolute;
+  pointer-events: none;
 }
 .footer {
   font-size: 64px;
