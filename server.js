@@ -51,28 +51,19 @@ app.set('view engine', 'pug')
 
 app.get('/stories/:image', function (req, res, next) {
   debug('image', req.params.image)
-  db.get(`SELECT full_path, file_name FROM image WHERE file_name = "${req.params.image}"`, (err, result) => {
-    if (err) {
-      return next(err)
-    }
-    if (!result) {
-      debug('no image data')
-      return next()
-    }
-    debug('found image', result)
-    const imageMattPath = path.join(STORIES_PATH, result.file_name)
-    debug('matt path', imageMattPath)
-    return matt(result.full_path, imageMattPath).then(() => {
-      debug('done creating image')
-      next()
-    })
+  const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
+  const imageMattPath = path.join(STORIES_PATH, req.params.image)
+  debug('matt path', imageMattPath)
+  return matt(sourceImagePath, imageMattPath).then(() => {
+    debug('done creating image')
+    next()
   })
 })
 
 app.get('/small/:image', function (req, res, next) {
+  debug('image', req.params.image)
   const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
   const SIZE = 1024
-  debug('image', req.params.image)
   const smallImagePath = path.join(SMALL_PATH, req.params.image)
   debug('creating image with sharp', smallImagePath)
   return sharp(sourceImagePath)
