@@ -27,6 +27,7 @@
     "node-watch": "^0.5.5",
     "pug": "^2.0.0-rc.4",
     "recursive-readdir": "^2.2.1",
+    "sharp": "^0.18.4",
     "sqlite3": "^3.1.13"
   },
   "devDependencies": {

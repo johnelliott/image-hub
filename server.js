@@ -5,6 +5,7 @@ const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
 const matt = require('./treatments/matt-story.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
+const sharp = require('sharp')
 
 require('dotenv').config()
 const STORAGE_PATH = process.env.STORAGE_PATH
@@ -20,6 +21,13 @@ if (!STORIES_PATH) {
   process.exit(1)
 }
 debug('STORIES_PATH', STORIES_PATH)
+
+const SMALL_PATH = process.env.SMALL_PATH
+if (!SMALL_PATH) {
+  console.error(new Error('no SMALL_PATH'))
+  process.exit(1)
+}
+debug('SMALL_PATH', SMALL_PATH)
 
 // Connect to a database file
 const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
@@ -41,9 +49,6 @@ app.set('env', process.env.NODE_ENV)
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
-/**
- * Redirect to an image in the database to get served by nginx
- */
 app.get('/stories/:image', function (req, res, next) {
   debug('image', req.params.image)
   db.get(`SELECT full_path, file_name FROM image WHERE file_name = "${req.params.image}"`, (err, result) => {
@@ -58,16 +63,31 @@ app.get('/stories/:image', function (req, res, next) {
     const imageMattPath = path.join(STORIES_PATH, result.file_name)
     debug('matt path', imageMattPath)
     return matt(result.full_path, imageMattPath).then(() => {
-      debug('calling next')
+      debug('done creating image')
       next()
     })
   })
 })
-// Serve form stories after done generating a stort matt image
-app.use('/stories/', express.static(STORIES_PATH))
-// This should rarely/never get used except in dev
-app.use('/storage/', express.static(STORAGE_PATH))
 
+app.get('/small/:image', function (req, res, next) {
+  const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
+  const SIZE = 1024
+  debug('image', req.params.image)
+  const smallImagePath = path.join(SMALL_PATH, req.params.image)
+  debug('creating image with sharp', smallImagePath)
+  return sharp(sourceImagePath)
+    .resize(SIZE, SIZE)
+    .max()
+    .withoutEnlargement()
+    .toFile(smallImagePath)
+    .then(() => {
+      debug('done creating image')
+      next()
+    })
+})
+app.use('/stories/', express.static(STORIES_PATH))
+app.use('/small/', express.static(SMALL_PATH))
+app.use('/storage/', express.static(STORAGE_PATH))
 /**
  * Get a gallery or JSON for gallery
  * query param is page
@@ -93,6 +113,7 @@ app.get('/', function (req, res, next) {
       return {
         name: i.file_name,
         fullHref: `/${path.basename(STORAGE_PATH)}/${i.file_name}`,
+        smallHref: `/${path.basename(SMALL_PATH)}/${i.file_name}`,
         igStoryHref: `/${path.basename(STORIES_PATH)}/${i.file_name}`,
         b64i: formatBase64(i.thumbnail)
       }
