@@ -8,7 +8,7 @@
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
-    "status": "systemctl --user status image-hub-*.service && systemctl status nginx.service",
+    "status": "systemctl status image-hub-*.service && systemctl status nginx.service",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
