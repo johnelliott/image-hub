@@ -40,7 +40,8 @@ do
 
     echo start rsync
     shopt -s globstar
-    rsync -avh "$CARD_MOUNT_POINT/**/*JPG" $STORAGE_DIR/
+    JPEGS="$CARD_MOUNT_POINT/**/*JPG" 
+    rsync -avh $JPEGS $STORAGE_DIR/
     echo end rsync
 
     # Unmount the SD card
