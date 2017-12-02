@@ -28,6 +28,8 @@ if (!SMALL_PATH) {
   process.exit(1)
 }
 debug('SMALL_PATH', SMALL_PATH)
+const SIZE = 1024
+debug('SMALL SIZE', SIZE)
 
 // Connect to a database file
 const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
@@ -43,6 +45,38 @@ const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, res
     }
   })
 })
+
+function smallResize (from, to) {
+  return sharp(from)
+    .resize(SIZE, SIZE)
+    .max()
+    .rotate()
+    .withoutEnlargement()
+    .toFile(to)
+}
+
+function generateSmallImages (fileName) {
+  const range = '10 second'
+  db.all(`
+    SELECT file_name
+    FROM (select date_time_created FROM image WHERE file_name = '${fileName}') AS source, image
+    WHERE image.date_time_created BETWEEN datetime(source.date_time_created, '-${range}') AND datetime(source.date_time_created, '+${range}') and image.date_time_created <> source.date_time_created
+  `, (err, result) => {
+    if (err) {
+      debug(err)
+    }
+    debug('Found %s photos around that one', result.length)
+
+    // TODO add fs.access test before calling sharp
+    debug('PHOTOS', result.map(i => i.file_name))
+    if (result.length > 0) {
+      result.map(i => i.file_name).forEach(i => {
+        debug('optimistic resize %s', i)
+        smallResize(path.join(STORAGE_PATH, i), path.join(SMALL_PATH, i)).catch(debug)
+      })
+    }
+  })
+}
 
 var app = express()
 app.set('env', process.env.NODE_ENV)
@@ -62,11 +96,11 @@ app.get('/stories/:image', function (req, res, next) {
 
 app.get('/small/:image', function (req, res, next) {
   debug('image', req.params.image)
-  const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
-  const SIZE = 1024
-  const smallImagePath = path.join(SMALL_PATH, req.params.image)
+  const name = req.params.image
+  const sourceImagePath = path.join(STORAGE_PATH, name)
+  const smallImagePath = path.join(SMALL_PATH, name)
   debug('creating image with sharp', smallImagePath)
-  return sharp(sourceImagePath)
+  sharp(sourceImagePath)
     .resize(SIZE, SIZE)
     .max()
     .rotate()
@@ -75,6 +109,12 @@ app.get('/small/:image', function (req, res, next) {
     .then(() => {
       debug('done creating image')
       next()
+      generateSmallImages(name)
+    })
+    .catch(err => {
+      if (err.message === 'Input file is missing or of an unsupported image format') {
+        res.status(404).end()
+      }
     })
 })
 app.use('/stories/', express.static(STORIES_PATH))
