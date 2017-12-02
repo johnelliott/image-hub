@@ -109,7 +109,9 @@ app.get('/small/:image', function (req, res, next) {
     .then(() => {
       debug('done creating image')
       next()
-      generateSmallImages(name)
+      if (process.env.OPTIMISTIC_SMALL === 'true') {
+        generateSmallImages(name)
+      }
     })
     .catch(err => {
       if (err.message === 'Input file is missing or of an unsupported image format') {

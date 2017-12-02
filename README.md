@@ -8,3 +8,6 @@ The intended hardware is a Raspberry Pi 3 board, USB card reader, and USB power 
 ## logging
 journalctl -x -b -e --user-unit image-hub*.service
 systemctl --user status image-hub-*.service
+
+## feature flags
+OPTIMISTIC_SMALL=true
