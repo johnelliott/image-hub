@@ -103,6 +103,6 @@ a {
 .footer > a {
   display: block;
   text-align: center;
-  width: 100%;
-  font-size: 48px;
+  font-size: 36px;
+  padding: 0 10px;
 }
