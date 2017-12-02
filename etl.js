@@ -73,7 +73,7 @@ function getImgData (path) {
     })
 
   openExiftoolProcess.then(() => {
-    return ep.readMetadata(path, ['b', 'FileName', 'ThumbnailImage', 'DateTimeOriginal', 'if \'-ThumbnailImage\''])
+    return ep.readMetadata(path, ['b', 'fast2', 'FileName', 'ThumbnailImage', 'DateTimeOriginal', 'if \'-ThumbnailImage\''])
   })
     .then(result => {
       // create db entry
