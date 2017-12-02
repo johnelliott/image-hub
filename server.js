@@ -85,7 +85,7 @@ app.use('/storage/', express.static(STORAGE_PATH))
  * query param is page
  * resolves with array of SELECT * from image table
  */
-app.get('/', function (req, res, next) {
+app.get('/:all?', function (req, res, next) {
   // TODO add back paging
   // const pageSize = (3 * 5)
   // debug('page', req.query.page)
@@ -93,15 +93,11 @@ app.get('/', function (req, res, next) {
   // debug('offset', offset)
   // db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
   const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
-  db.all(`SELECT file_name, thumbnail FROM image ${req.query.date === 'all' ? '' : dateRangeStatement}ORDER BY date_time_created DESC`, (err, result) => {
+  db.all(`SELECT file_name, thumbnail FROM image ${req.params.all === 'all' ? '' : dateRangeStatement}ORDER BY date_time_created DESC`, (err, result) => {
     if (err) {
       next(err)
     }
     debug('Found %s photos', result.length)
-    // If we get no content
-    if (result.length === 0) {
-      return res.status(204).end()
-    }
     const list = result.map(i => {
       return {
         name: i.file_name,
