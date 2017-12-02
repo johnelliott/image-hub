@@ -92,7 +92,8 @@ app.get('/', function (req, res, next) {
   // const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   // debug('offset', offset)
   // db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
-  db.all(`SELECT file_name, thumbnail FROM image ORDER BY date_time_created DESC`, (err, result) => {
+  const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
+  db.all(`SELECT file_name, thumbnail FROM image ${req.query.date === 'all' ? '' : dateRangeStatement}ORDER BY date_time_created DESC`, (err, result) => {
     if (err) {
       next(err)
     }
