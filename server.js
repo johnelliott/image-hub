@@ -32,7 +32,7 @@ const SIZE = 1024
 debug('SMALL SIZE', SIZE)
 
 // Connect to a database file
-const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
+const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME || 'cam.db'), (err, result) => {
   if (err) {
     return debug('db open error', err)
   }
@@ -65,10 +65,9 @@ function generateSmallImages (fileName) {
     if (err) {
       debug(err)
     }
-    debug('Found %s photos around that one', result.length)
+    debug('found %s photos around that one', result.length)
 
     // TODO add fs.access test before calling sharp
-    debug('PHOTOS', result.map(i => i.file_name))
     if (result.length > 0) {
       result.map(i => i.file_name).forEach(i => {
         debug('optimistic resize %s', i)
@@ -139,7 +138,7 @@ app.get('/:all?', function (req, res, next) {
     if (err) {
       next(err)
     }
-    debug('Found %s photos', result.length)
+    debug('found %s photos', result.length)
     const list = result.map(i => {
       return {
         name: i.file_name,
