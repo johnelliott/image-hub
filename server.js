@@ -132,9 +132,9 @@ app.get('/:all?', function (req, res, next) {
   // debug('page', req.query.page)
   // const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
   // debug('offset', offset)
-  // db.all(`SELECT * from image LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
+  // db.all(`SELECT file_name, thumbnail, date_time_created FROM image ${req.params.all === 'all' ? '' : dateRangeStatement} ORDER BY date_time_created DESC LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
   const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
-  db.all(`SELECT file_name, thumbnail FROM image ${req.params.all === 'all' ? '' : dateRangeStatement}ORDER BY date_time_created DESC`, (err, result) => {
+  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ${req.params.all === 'all' ? '' : dateRangeStatement} ORDER BY date_time_created DESC`, (err, result) => {
     if (err) {
       next(err)
     }
@@ -142,6 +142,7 @@ app.get('/:all?', function (req, res, next) {
     const list = result.map(i => {
       return {
         name: i.file_name,
+        date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
         fullHref: `/${path.basename(STORAGE_PATH)}/${i.file_name}`,
         smallHref: `/${path.basename(SMALL_PATH)}/${i.file_name}`,
         igStoryHref: `/${path.basename(STORIES_PATH)}/${i.file_name}`,
