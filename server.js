@@ -7,6 +7,11 @@ const matt = require('./treatments/matt-story.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
 
+// const choo = require('choo')
+// const mainView = require('./views/main.js')
+// const chooApp = choo()
+// chooApp.route('/', mainView)
+
 require('dotenv').config()
 const STORAGE_PATH = process.env.STORAGE_PATH
 if (!STORAGE_PATH) {
@@ -121,18 +126,14 @@ app.get('/small/:image', function (req, res, next) {
 app.use('/stories/', express.static(STORIES_PATH))
 app.use('/small/', express.static(SMALL_PATH))
 app.use('/storage/', express.static(STORAGE_PATH))
+// wow this is just for css
+app.use('/', express.static(path.join(__dirname, 'views')))
+app.use('/', express.static(path.join(__dirname, 'dist')))
+
 /**
- * Get a gallery or JSON for gallery
- * query param is page
- * resolves with array of SELECT * from image table
+ * CHOO ROUTE
  */
 app.get('/:all?', function (req, res, next) {
-  // TODO add back paging
-  // const pageSize = (3 * 5)
-  // debug('page', req.query.page)
-  // const offset = req.query.page ? ((parseInt(req.query.page, 10) - 1) * pageSize) : 0
-  // debug('offset', offset)
-  // db.all(`SELECT file_name, thumbnail, date_time_created FROM image ${req.params.all === 'all' ? '' : dateRangeStatement} ORDER BY date_time_created DESC LIMIT ${pageSize} OFFSET ${offset}`, (err, result) => {
   const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
   db.all(`SELECT file_name, thumbnail, date_time_created FROM image ${req.params.all === 'all' ? '' : dateRangeStatement} ORDER BY date_time_created DESC`, (err, result) => {
     if (err) {
@@ -151,7 +152,14 @@ app.get('/:all?', function (req, res, next) {
     })
     return res.format({
       'text/html': function () {
-        res.render('list', { list })
+        // TODO re-enable server rendering later
+        // debug('CHOO rendering')
+        // const chooRenderedString = chooApp.toString('/', {
+        //   lightbox: { open: false, index: 0 },
+        //   images: list
+        // })
+        // res.send(chooRenderedString)
+        res.render('app', { list })
       },
       'text/plain': function () {
         res.render('list', { list })

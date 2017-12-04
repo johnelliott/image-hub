@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "DEBUG=hub:* NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
+    "watch": "nodemon --ignore ./dist --exec browserify ./views/app.js -o ./dist/bundle.js",
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
@@ -18,6 +19,7 @@
   "author": "John Elliott <johnelliott703@gmail.com> (http://primitivemachine.com/)",
   "license": "",
   "dependencies": {
+    "choo": "^6.6.0",
     "debug": "^3.1.0",
     "dotenv": "^4.0.0",
     "ecstatic": "^3.0.0",
@@ -32,6 +34,7 @@
     "sqlite3": "^3.1.13"
   },
   "devDependencies": {
+    "browserify": "^14.5.0",
     "nodemon": "^1.12.1",
     "standard": "^10.0.3"
   }
