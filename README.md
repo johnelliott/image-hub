@@ -27,9 +27,9 @@ The intended hardware is a Raspberry Pi 3 board, USB card reader, and USB power 
 ```ini
 EXIFTOOL_PATH=/usr/local/bin/exiftool
 PORT=3000
-SMALL_PATH=/Users/john/code/image-hub/small
-STORAGE_PATH=/Users/john/code/image-hub/storage
-STORIES_PATH=/Users/john/code/image-hub/stories
+SMALL_PATH=/Users/john/code/image-hub/media/small
+STORAGE_PATH=/Users/john/code/image-hub/media/storage
+STORIES_PATH=/Users/john/code/image-hub/media/stories
 OPTIMISTIC_SMALL=false
 SEVER_RENDER_OFF=false
 ```
