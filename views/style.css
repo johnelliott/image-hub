@@ -58,7 +58,7 @@ a {
   }
   .lightbox-image {
     max-width: 90%;
-    max-height: 90%;
+    max-height: 54%;
   }
 }
 /* iphone 6+ */
@@ -68,17 +68,10 @@ a {
     height: 132px;
   }
   .lightbox-image {
+    max-height: 550px;
     max-width: 404px;
   }
 }
-/* TODO finish this */
-/*
-@media (max-height: 736px) {
-  .lightbox-image {
-    max-height: 700px;
-  }
-}
-*/
 /* iphone 6 */
 @media (max-width: 375px) {
   .image-link {
@@ -86,6 +79,7 @@ a {
     height: 120px;
   }
   .lightbox-image {
+    max-height: 450px;
     max-width: 365px;
   }
 }
@@ -96,8 +90,9 @@ a {
     height: 100px;
   }
   .lightbox-image {
-    max-width: 310px;;
-  }
+    max-height: 375px;
+    max-width: 310px;
+  };
 }
 
 .image-thumb__crops {
@@ -149,6 +144,11 @@ a {
 }
 .lightbox .image-thumb__icon {
   font-size: 44px;
+}
+@media (max-width: 320px) {
+  .lightbox .image-thumb__icon {
+    font-size: 36px;
+  }
 }
 .lightbox-content {
   display: flex;
