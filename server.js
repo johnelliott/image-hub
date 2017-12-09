@@ -8,8 +8,8 @@ const matt = require('./treatments/matt-story.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
 
-const SERVER_RENDER_OFF = process.env.SERVER_RENDER_OFF === 'true'
-debug('SERVER_RENDER_OFF', SERVER_RENDER_OFF)
+const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
+debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
 const OPTIMISTIC_SMALL = process.env.OPTIMISTIC_SMALL === 'true'
 debug('OPTIMISTIC_SMALL', OPTIMISTIC_SMALL)
 
@@ -168,7 +168,7 @@ app.get('/:all?', function (req, res, next) {
         })
         // TODO put back initial render
         // once I figure out set intial state script
-        res.render('app', { images, chooRenderedString: SERVER_RENDER_OFF ? '<body>👁</body>' : chooRenderedString })
+        res.render('app', { images, chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString })
       },
       'text/plain': function () {
         debug('rendering text/plain')
@@ -210,7 +210,7 @@ app.get('/view/:image', function (req, res, next) {
           currentImage: images.find(i => i.name === req.params.image),
           images
         })
-        res.render('app', { images, chooRenderedString: SERVER_RENDER_OFF ? '<body>👁</body>' : chooRenderedString })
+        res.render('app', { images, chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString })
       },
       'text/plain': function () {
         debug('rendering text/plain')
