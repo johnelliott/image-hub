@@ -147,8 +147,8 @@ a {
   margin-top: 0.5em;
   align-items: center;
 }
-.lightbox .image-thumb__icon:last-child, .lightbox .image-thumb__icon:first-child {
-  font-size: 32px;
+.lightbox .image-thumb__icon {
+  font-size: 44px;
 }
 .lightbox-content {
   display: flex;

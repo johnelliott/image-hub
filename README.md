@@ -1,5 +1,6 @@
 # Image Hub 👁
 A helper to rapidly share images from your camera.
+A launch pad for your images.
 
 Image Hub is a computer that accepts your camera memory card, ingests any JPEG images, and creates a web gallery served over the local network. Image Hub formats images on demand with download links for publishing to Instagram stories, facebook or other social media.
 
@@ -11,3 +12,4 @@ systemctl --user status image-hub-*.service
 
 ## feature flags
 OPTIMISTIC_SMALL=true
+SR_OFF=1

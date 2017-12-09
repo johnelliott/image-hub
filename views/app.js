@@ -1,40 +1,39 @@
+const debug = require('debug')('hub:views:app')
+debug('initialState', global.window.initialState)
 const choo = require('choo')
 const main = require('./main.js')
-const debug = require('debug')('hub:views:app')
-debug('APP FILE')
+const detail = require('./detail.js')
 
 // Choo app
 const app = choo()
+app.route('/view/:image', detail)
+app.route(':crop/:image', function (state, emit) {
+  debug('crop', state.params.crop)
+  switch (state.params.crop) {
+    case 'small':
+    case 'stories':
+    case 'storage':
+      debug('%s crop', state.params.crop)
+      debug('bail out to %s', state.href)
+      global.window.location.href = state.href
+      break
+    default:
+      return main(state, emit)
+  }
+})
 app.route('/', main)
-app.route('/view/*', main)
+
 app.use(function (state, emitter) {
   // initialize state
   state.images = []
-  state.lightbox = { index: 0, open: false }
+  state.currentImage = {}
 
-  emitter.on('next', function () {
-    debug('next event')
-    state.lightbox.index = Math.min(state.lightbox.index + 1, state.images.length)
-    emitter.emit('render')
-  })
-  emitter.on('prev', function () {
-    debug('prev event')
-    state.lightbox.index = Math.max(state.lightbox.index - 1, 0)
-    emitter.emit('render')
-  })
-  emitter.on('view', function (data) {
-    debug('view event', data)
-    state.lightbox.open = true
-    state.lightbox.index = state.images.findIndex(i => i.name === data)
-    emitter.emit('render')
-  })
-  emitter.on('close', function () {
-    debug('close event')
-    state.lightbox.open = false
-    emitter.emit('render')
+  emitter.on('navigate', function () {
+    debug('navigate')
   })
   emitter.on('add', function () {
     debug('add event')
+    debug('about to fetch')
     global.fetch(`/all`, {
       headers: {
         Accept: 'application/json'
@@ -49,7 +48,7 @@ app.use(function (state, emitter) {
           .sort((p, c) => p.date > c.date)
         emitter.emit('render')
       })
-    .catch(debug)
+      .catch(debug)
   })
   emitter.emit('add')
 })

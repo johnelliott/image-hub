@@ -7,11 +7,6 @@ const matt = require('./treatments/matt-story.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
 
-// const choo = require('choo')
-// const mainView = require('./views/main.js')
-// const chooApp = choo()
-// chooApp.route('/', mainView)
-
 require('dotenv').config()
 const STORAGE_PATH = process.env.STORAGE_PATH
 if (!STORAGE_PATH) {
@@ -126,13 +121,22 @@ app.get('/small/:image', function (req, res, next) {
 app.use('/stories/', express.static(STORIES_PATH))
 app.use('/small/', express.static(SMALL_PATH))
 app.use('/storage/', express.static(STORAGE_PATH))
-// wow this is just for css
+
+// This is just for style.css
 app.use('/', express.static(path.join(__dirname, 'views')))
+// This is just for bundle.js
 app.use('/', express.static(path.join(__dirname, 'dist')))
 
 /**
  * CHOO ROUTE
  */
+const choo = require('choo')
+const main = require('./views/main.js')
+const detail = require('./views/detail.js')
+const chooApp = choo()
+chooApp.route('/', main)
+chooApp.route('/view/:image', detail)
+
 app.get('/:all?', function (req, res, next) {
   const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
   db.all(`SELECT file_name, thumbnail, date_time_created FROM image ${req.params.all === 'all' ? '' : dateRangeStatement} ORDER BY date_time_created DESC`, (err, result) => {
@@ -140,7 +144,7 @@ app.get('/:all?', function (req, res, next) {
       next(err)
     }
     debug('found %s photos', result.length)
-    const list = result.map(i => {
+    const images = result.map(i => {
       return {
         name: i.file_name,
         date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
@@ -152,20 +156,63 @@ app.get('/:all?', function (req, res, next) {
     })
     return res.format({
       'text/html': function () {
-        // TODO re-enable server rendering later
-        // debug('CHOO rendering')
-        // const chooRenderedString = chooApp.toString('/', {
-        //   lightbox: { open: false, index: 0 },
-        //   images: list
-        // })
-        // res.send(chooRenderedString)
-        res.render('app', { list })
+        debug('rendering text/html')
+        const chooRenderedString = chooApp.toString('/', {
+          images
+        })
+        // TODO put back initial render
+        // once I figure out set intial state script
+        res.render('app', { images, chooRenderedString: process.env.SR_OFF ? '<body>👁</body>' : chooRenderedString })
       },
       'text/plain': function () {
-        res.render('list', { list })
+        debug('rendering text/plain')
+        res.render('images', { images })
       },
       'application/json': function () {
-        res.json(list)
+        debug('rendering application/json')
+        res.json(images)
+      },
+      'default': function () {
+        // log the request and respond with 406
+        res.status(406).send('Not Acceptable')
+      }
+    })
+  })
+})
+
+app.get('/view/:image', function (req, res, next) {
+  debug('hit view route for %s', req.params.image)
+  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC`, (err, result) => {
+    if (err) {
+      next(err)
+    }
+    debug('found %s photos', result.length)
+    const images = result.map(i => {
+      return {
+        name: i.file_name,
+        date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
+        fullHref: `/${path.basename(STORAGE_PATH)}/${i.file_name}`,
+        smallHref: `/${path.basename(SMALL_PATH)}/${i.file_name}`,
+        igStoryHref: `/${path.basename(STORIES_PATH)}/${i.file_name}`,
+        b64i: formatBase64(i.thumbnail)
+      }
+    })
+    return res.format({
+      'text/html': function () {
+        debug('rendering text/html')
+        const chooRenderedString = chooApp.toString(`/view/${req.params.image}`, {
+          currentImage: images.find(i => i.name === req.params.image),
+          images
+        })
+        res.render('app', { images, chooRenderedString: process.env.SR_OFF ? '<body>👁</body>' : chooRenderedString })
+      },
+      'text/plain': function () {
+        debug('rendering text/plain')
+        res.render('images', { images })
+      },
+      'application/json': function () {
+        debug('rendering application/json')
+        res.json(images)
       },
       'default': function () {
         // log the request and respond with 406
