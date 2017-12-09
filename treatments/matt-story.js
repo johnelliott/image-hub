@@ -11,7 +11,8 @@ function mattStory (img, destinationPath) {
     gm(img)
       .autoOrient()
       .resize(1080, '>')
-      .background('#050B12') // Deep non-black blue
+      // .background('#050B12') // Deep non-black blue
+      .background('blue') // IW blue is just blue
       .gravity('Center')
       .extent(1080, 1920)
       .noProfile()

@@ -2,14 +2,18 @@ const html = require('choo/html')
 const image = require('./image.js')
 const debug = require('debug')('hub:views:detail')
 
+  if (global.window) {
+    debug('we client side')
+  }
 module.exports = function main (state, emit) {
-  debug('detail view for %s', state.params.image)
-  // debug('images', state.images)
+  debug('state', state)
+  // debug('detail view for %s', state.params.image)
   const currentImageIndex = state.images.findIndex(i => i.name === state.params.image)
   debug('currentImageIndex', currentImageIndex)
 
   // hacks
-  const i = state.images[currentImageIndex]
+  const currentImage = state.images[currentImageIndex]
+  debug('currentImage', currentImage)
   const close = () => {
     debug('close called')
     emit('pushState', '/')
@@ -26,14 +30,14 @@ module.exports = function main (state, emit) {
     <nav><h1><a href="/" title="share"><span>📷 ${state.images ? state.images.length : 0}</span></a></h1></nav>
     <div class="lightbox" onclick=${close}>
       <div class="lightbox-content" >
-        <a alt="small size" href="/small/${i.name}">
-          <img class="lightbox-image" src="/small/${i.name}"/>
+        <a alt="small size" href="/small/${currentImage.name}">
+          <img class="lightbox-image" src="/small/${currentImage.name}"/>
         </a>
         <div class="image-thumb__crops">
           ${previousImage}
-          <a class="image-thumb__icon" alt="full size" href="/storage/${i.name}">💯</a>
-          <a class="image-thumb__icon" alt="small size" href="/small/${i.name}">🖼</a>
-          <a class="image-thumb__icon" alt="instagram story" href="/stories/${i.name}">↕️</a>
+          <a class="image-thumb__icon" alt="full size" href="/storage/${currentImage.name}">💯</a>
+          <a class="image-thumb__icon" alt="small size" href="/small/${currentImage.name}">🖼</a>
+          <a class="image-thumb__icon" alt="instagram story" href="/stories/${currentImage.name}">↕️</a>
           ${nextImage}
         </div>
       </div>

@@ -143,9 +143,9 @@ const chooApp = choo()
 chooApp.route('/', main)
 chooApp.route('/view/:image', detail)
 
-app.get('/:all?', function (req, res, next) {
-  const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
-  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ${req.params.all === 'all' ? '' : dateRangeStatement} ORDER BY date_time_created DESC`, (err, result) => {
+app.get('/', function (req, res, next) {
+  // const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
+  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC`, (err, result) => {
     if (err) {
       next(err)
     }
@@ -166,8 +166,6 @@ app.get('/:all?', function (req, res, next) {
         const chooRenderedString = chooApp.toString('/', {
           images
         })
-        // TODO put back initial render
-        // once I figure out set intial state script
         res.render('app', { images, chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString })
       },
       'text/plain': function () {
@@ -207,7 +205,9 @@ app.get('/view/:image', function (req, res, next) {
       'text/html': function () {
         debug('rendering text/html')
         const chooRenderedString = chooApp.toString(`/view/${req.params.image}`, {
-          currentImage: images.find(i => i.name === req.params.image),
+          params: {
+            image: req.params.image
+          },
           images
         })
         res.render('app', { images, chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString })

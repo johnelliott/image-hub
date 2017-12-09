@@ -7,20 +7,6 @@ const detail = require('./detail.js')
 // Choo app
 const app = choo()
 app.route('/view/:image', detail)
-app.route(':crop/:image', function (state, emit) {
-  debug('crop', state.params.crop)
-  switch (state.params.crop) {
-    case 'small':
-    case 'stories':
-    case 'storage':
-      debug('%s crop', state.params.crop)
-      debug('bail out to %s', state.href)
-      global.window.location.href = state.href
-      break
-    default:
-      return main(state, emit)
-  }
-})
 app.route('/', main)
 
 app.use(function (state, emitter) {
@@ -54,5 +40,4 @@ app.use(function (state, emitter) {
 })
 
 debug('mounting app')
-console.log('mounting app')
 app.mount('body')
