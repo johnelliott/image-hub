@@ -1,3 +1,4 @@
+require('dotenv').config()
 const debug = require('debug')('hub:server')
 const path = require('path')
 const express = require('express')
@@ -8,15 +9,23 @@ const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
 
 const SERVER_RENDER_OFF = process.env.SERVER_RENDER_OFF === 'true'
+debug('SERVER_RENDER_OFF', SERVER_RENDER_OFF)
 const OPTIMISTIC_SMALL = process.env.OPTIMISTIC_SMALL === 'true'
+debug('OPTIMISTIC_SMALL', OPTIMISTIC_SMALL)
 
-require('dotenv').config()
 const STORAGE_PATH = process.env.STORAGE_PATH
 if (!STORAGE_PATH) {
   console.error(new Error('STORAGE_PATH'))
   process.exit(1)
 }
 debug('STORAGE_PATH', STORAGE_PATH)
+
+const SMALL_PATH = process.env.SMALL_PATH
+if (!SMALL_PATH) {
+  console.error(new Error('no SMALL_PATH'))
+  process.exit(1)
+}
+debug('SMALL_PATH', SMALL_PATH)
 
 const STORIES_PATH = process.env.STORIES_PATH
 if (!STORIES_PATH) {
@@ -25,12 +34,6 @@ if (!STORIES_PATH) {
 }
 debug('STORIES_PATH', STORIES_PATH)
 
-const SMALL_PATH = process.env.SMALL_PATH
-if (!SMALL_PATH) {
-  console.error(new Error('no SMALL_PATH'))
-  process.exit(1)
-}
-debug('SMALL_PATH', SMALL_PATH)
 const SIZE = 1024
 debug('SMALL SIZE', SIZE)
 
