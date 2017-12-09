@@ -1,0 +1,22 @@
+{
+  "dir": "ltr",
+  "lang": "en",
+  "name": "Image Hub",
+  "short_name": "Image Hub",
+  "description": "Image launch pad 📷🚀📲",
+  "scope": "/",
+  "display": "minimal-ui",
+  "orientation": "any",
+  "start_url": "/",
+  "theme_color": "#81E7EB",
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "background_color": "#E8E9ED",
+  "icons": [
+    {
+      "src": "images/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ]
+}
