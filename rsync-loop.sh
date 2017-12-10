@@ -15,14 +15,17 @@ sudo sh -c "echo heartbeat > /sys/class/leds/led0/trigger"
 echo heartbeat
 
 # Wait for a USB SD reader (ID 8564:4000 Transcend Information, Inc. RDF8)
-while [ -z "$(lsusb -d 8564:4000)" ]
+# Wait for a USB SD reader (ID 05e3:0749 Genesys Logic, Inc.)
+while [ -z "$(lsusb -d 05e3:0749)" ]
 do
   echo wait reader
   sleep 1
 done
 
 # Handle cards as long as the reader is plugged in
-while [ -n "$(lsusb -d 8564:4000)" ]
+# 05e3:0749 - ugreen tail one
+# 8564:4000 - Transcend one
+while [ -n "$(lsusb -d 05e3:0749)" ]
 do
   if [ -n "$(ls /dev/* | grep $CARD_DEV | cut -d"/" -f3)" ]
   then
