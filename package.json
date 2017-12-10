@@ -5,7 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "DEBUG=hub:* NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
+    "service:restart": "sudo systemctl restart image-hub-www.service && sudo systemctl restart image-hub-etl.service",
+    "service:stop": "sudo systemctl stop image-hub-www.service && sudo systemctl stop image-hub-etl.service",
+    "service:start": "sudo systemctl start image-hub-www.service && sudo systemctl start image-hub-etl.service",
     "watch": "nodemon --ignore ./dist --exec browserify --debug ./views/app.js -o ./dist/bundle.js",
+    "build": "browserify --debug ./views/app.js -o ./dist/bundle.js",
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
