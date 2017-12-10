@@ -4,7 +4,7 @@ const path = require('path')
 const express = require('express')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
-const matt = require('./treatments/matt-story.js')
+const matt = require('./lib/treatments/matt-story.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
 

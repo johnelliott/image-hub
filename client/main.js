@@ -10,9 +10,7 @@ module.exports = function main (state, emit) {
         <ul>${state.images.map(i => image(i, emit))}</ul>
       </div>
       <footer class="footer">
-        <a href="/">🏠</a>
-        <a href="#">🔝</a>
-        <a href="/all">📅</a>
+        <span>📸</span>
       </footer>
     </body>`
 }

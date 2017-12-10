@@ -1,12 +1,18 @@
 const debug = require('debug')('hub:views:app')
 debug('initialState', global.window.initialState)
 const choo = require('choo')
+const html = require('choo/html')
 const main = require('./main.js')
 const detail = require('./detail.js')
 
 // Choo app
 const app = choo()
 app.route('/view/:image', detail)
+app.route('/:crop/:image', function (state, emit) {
+  debug('href', state.href)
+  debug('params', state.params)
+  return html`<body><img src="${state.href}"></body>`
+})
 app.route('/', main)
 
 app.use(function (state, emitter) {
@@ -31,10 +37,10 @@ app.use(function (state, emitter) {
       .catch(debug)
   })
   // TODO build cursor-based server endpoing then emit fetch with max_id
-  if (!state.images.lenght) {
-    debug('no images, fetching from server')
-    emitter.emit('fetch')
-  }
+  //if (!state.images.lenght) {
+  //  debug('no images, fetching from server')
+  //  emitter.emit('fetch')
+  //}
 })
 
 debug('mounting app')
