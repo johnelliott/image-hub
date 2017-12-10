@@ -137,8 +137,8 @@ app.use('/', express.static(path.join(__dirname, 'dist')))
  * CHOO ROUTE
  */
 const choo = require('choo')
-const main = require('./views/main.js')
-const detail = require('./views/detail.js')
+const main = require('./client/main.js')
+const detail = require('./client/detail.js')
 const chooApp = choo()
 chooApp.route('/', main)
 chooApp.route('/view/:image', detail)
