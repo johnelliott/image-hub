@@ -36,9 +36,9 @@ module.exports = function main (state, emit) {
         <div class="image-thumb__crops">
           ${previousImage}
           <a class="image-thumb__icon" alt="full size" href="/storage/${currentImage.name}">💯</a>
-          <a class="image-thumb__icon" alt="home" href="/">🏠</a>
           <a class="image-thumb__icon" alt="small size" href="/small/${currentImage.name}">🖼</a>
           <a class="image-thumb__icon" alt="instagram story" href="/stories/${currentImage.name}">↕️</a>
+          <a class="image-thumb__icon" alt="home" href="/">🏠</a>
           ${nextImage}
         </div>
       </div>
