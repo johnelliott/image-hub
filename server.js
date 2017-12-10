@@ -132,6 +132,7 @@ app.use('/storage/', express.static(STORAGE_PATH))
 app.use('/', express.static(path.join(__dirname, 'views')))
 // This is just for bundle.js
 app.use('/', express.static(path.join(__dirname, 'dist')))
+app.use('/', express.static(path.join(__dirname, 'public')))
 
 /**
  * CHOO ROUTE
