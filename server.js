@@ -13,26 +13,17 @@ debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
 const OPTIMISTIC_SMALL = process.env.OPTIMISTIC_SMALL === 'true'
 debug('OPTIMISTIC_SMALL', OPTIMISTIC_SMALL)
 
-const STORAGE_PATH = process.env.STORAGE_PATH
-if (!STORAGE_PATH) {
-  console.error(new Error('STORAGE_PATH'))
+const MEDIA_PATH = process.env.MEDIA_PATH
+if (!MEDIA_PATH) {
+  console.error(new Error('MEDIA_PATH'))
   process.exit(1)
 }
-debug('STORAGE_PATH', STORAGE_PATH)
-
-const SMALL_PATH = process.env.SMALL_PATH
-if (!SMALL_PATH) {
-  console.error(new Error('no SMALL_PATH'))
-  process.exit(1)
-}
-debug('SMALL_PATH', SMALL_PATH)
-
-const STORIES_PATH = process.env.STORIES_PATH
-if (!STORIES_PATH) {
-  console.error(new Error('no STORIES_PATH'))
-  process.exit(1)
-}
-debug('STORIES_PATH', STORIES_PATH)
+const SMALL = 'small'
+const STORAGE = 'storage'
+const STORIES = 'stories'
+const SMALL_PATH = path.join(MEDIA_PATH, SMALL)
+const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
+const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
 
 const SIZE = 1024
 debug('SMALL SIZE', SIZE)
@@ -155,9 +146,9 @@ app.get('/', function (req, res, next) {
       return {
         name: i.file_name,
         date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
-        fullHref: `/${path.basename(STORAGE_PATH)}/${i.file_name}`,
-        smallHref: `/${path.basename(SMALL_PATH)}/${i.file_name}`,
-        igStoryHref: `/${path.basename(STORIES_PATH)}/${i.file_name}`,
+        fullHref: `/${STORAGE}/${i.file_name}`,
+        smallHref: `/${SMALL_PATH}/${i.file_name}`,
+        igStoryHref: `/${STORIES_PATH}/${i.file_name}`,
         b64i: formatBase64(i.thumbnail)
       }
     })
@@ -196,9 +187,9 @@ app.get('/view/:image', function (req, res, next) {
       return {
         name: i.file_name,
         date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
-        fullHref: `/${path.basename(STORAGE_PATH)}/${i.file_name}`,
-        smallHref: `/${path.basename(SMALL_PATH)}/${i.file_name}`,
-        igStoryHref: `/${path.basename(STORIES_PATH)}/${i.file_name}`,
+        fullHref: `/${STORAGE}/${i.file_name}`,
+        smallHref: `/${SMALL}/${i.file_name}`,
+        igStoryHref: `/${STORIES}/${i.file_name}`,
         b64i: formatBase64(i.thumbnail)
       }
     })
