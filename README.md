@@ -33,6 +33,14 @@ OPTIMISTIC_SMALL=false
 DISABLE_SERVER_RENDER=false
 ```
 
+## /media directory structure
+```
+media
+├── small
+├── storage
+└── stories
+```
+
 ## run locally
 - npm run etl in one terminal
 - drag/drop a filename.JPG with exif data (an exif preview thumbnail is necessary, camera pictures work well for this) into the `storage` directory
