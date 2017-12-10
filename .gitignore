@@ -7,3 +7,4 @@ data
 fixtures
 media
 node_modules
+dist/*.js
