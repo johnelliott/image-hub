@@ -20,7 +20,7 @@ app.use(function (state, emitter) {
   emitter.on('add', function () {
     debug('add event')
     debug('about to fetch')
-    global.fetch(`/all`, {
+    global.fetch(`/`, {
       headers: {
         Accept: 'application/json'
       }
