@@ -139,6 +139,7 @@ app.get('/', function (req, res, next) {
   // const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
   db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC`, (err, result) => {
     if (err) {
+      debug(err)
       next(err)
     }
     debug('found %s photos', result.length)
@@ -155,14 +156,16 @@ app.get('/', function (req, res, next) {
     return res.format({
       'text/html': function () {
         debug('rendering text/html')
-        const chooRenderedString = chooApp.toString('/', {
-          images
+        const state = {
+          images,
+          params: req.params,
+          href: req.originalUrl
+        }
+        const chooRenderedString = chooApp.toString('/', state)
+        res.render('index', {
+          state,
+          chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString
         })
-        res.render('app', { images, chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString })
-      },
-      'text/plain': function () {
-        debug('rendering text/plain')
-        res.render('images', { images })
       },
       'application/json': function () {
         debug('rendering application/json')
@@ -196,17 +199,16 @@ app.get('/view/:image', function (req, res, next) {
     return res.format({
       'text/html': function () {
         debug('rendering text/html')
-        const chooRenderedString = chooApp.toString(`/view/${req.params.image}`, {
-          params: {
-            image: req.params.image
-          },
-          images
+        const state = {
+          images,
+          params: req.params,
+          href: req.originalUrl
+        }
+        const chooRenderedString = chooApp.toString(`/view/${req.params.image}`, state)
+        res.render('index', {
+          state,
+          chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString
         })
-        res.render('app', { images, chooRenderedString: DISABLE_SERVER_RENDER ? '<body>👁</body>' : chooRenderedString })
-      },
-      'text/plain': function () {
-        debug('rendering text/plain')
-        res.render('images', { images })
       },
       'application/json': function () {
         debug('rendering application/json')

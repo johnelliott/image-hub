@@ -18,6 +18,6 @@ html
     <link rel="icon" sizes="144x144" href="./images/icon-144x144.png">
     <link rel="stylesheet" href="/style.css">
     script(type='text/javascript').
-      window.initialState = !{JSON.stringify(images)}
-    script(src='/bundle.js')
-    !=chooRenderedString
+      window.initialState = !{JSON.stringify(state)}
+  !=chooRenderedString
+  script(async src='/bundle.js')

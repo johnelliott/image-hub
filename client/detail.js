@@ -2,18 +2,18 @@ const html = require('choo/html')
 const image = require('./image.js')
 const debug = require('debug')('hub:views:detail')
 
-  if (global.window) {
-    debug('we client side')
-  }
+if (global.window) {
+  debug('we client side')
+}
 module.exports = function main (state, emit) {
-  debug('state', state)
+  debug('state.images.length', state.images.length)
   // debug('detail view for %s', state.params.image)
   const currentImageIndex = state.images.findIndex(i => i.name === state.params.image)
   debug('currentImageIndex', currentImageIndex)
 
   // hacks
   const currentImage = state.images[currentImageIndex]
-  debug('currentImage', currentImage)
+  // debug('currentImage', currentImage)
   const close = () => {
     debug('close called')
     emit('pushState', '/')

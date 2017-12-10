@@ -10,14 +10,10 @@ app.route('/view/:image', detail)
 app.route('/', main)
 
 app.use(function (state, emitter) {
-  // initialize state
-  state.images = []
-  state.currentImage = {}
-
   emitter.on('navigate', function () {
     debug('navigate')
   })
-  emitter.on('add', function () {
+  emitter.on('fetch', function () {
     debug('add event')
     debug('about to fetch')
     global.fetch(`/`, {
@@ -28,15 +24,17 @@ app.use(function (state, emitter) {
       .then(res => res.ok ? res : new Error('wtf'))
       .then(res => res.json())
       .then(json => {
-        state.images = []
-          .concat(state.images)
-          .concat(json)
+        state.images = [].concat(state.images).concat(json)
           .sort((p, c) => p.date > c.date)
         emitter.emit('render')
       })
       .catch(debug)
   })
-  emitter.emit('add')
+  // TODO build cursor-based server endpoing then emit fetch with max_id
+  if (!state.images.lenght) {
+    debug('no images, fetching from server')
+    emitter.emit('fetch')
+  }
 })
 
 debug('mounting app')
