@@ -11,7 +11,7 @@ body {
     "Segoe UI Emoji",
     "Segoe UI Symbol";
   color: #444;
-  background: white;
+  background: rgb(252, 252, 252);
 }
 body > img {
   max-height: 100%;
@@ -37,7 +37,7 @@ a {
 }
 
 .image-thumb {
-  margin: 2px;
+  margin: 1px;
   display: flex;
   flex-direction: column;
 }
