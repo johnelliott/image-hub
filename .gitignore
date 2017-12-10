@@ -1,8 +1,9 @@
-node_modules
 *.db
-fixtures/
-data/
+.editorconfig
+.env
 .npmrc
 .nvmrc
-.env
-.editorconfig
+data
+fixtures
+media
+node_modules
