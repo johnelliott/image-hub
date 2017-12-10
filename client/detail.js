@@ -17,7 +17,7 @@ module.exports = function main (state, emit) {
   }
   const nextImageLink = currentImageIndex + 1 < state.images.length
     ? html`<a next class="lightbox__icon" href=/view/${state.images[currentImageIndex + 1].name}>➡️</a>`
-    : html`<span class="lightbox__icon"></span>`
+    : html`<span class="lightbox__icon">🏠</span>`
   const previousImageLink = currentImageIndex > 0
     ? html`<a prev class="lightbox__icon" href=/view/${state.images[currentImageIndex - 1].name}>⬅️</a>`
     : html`<span class="lightbox__icon">🏠</span>`
