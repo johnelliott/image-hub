@@ -23,13 +23,13 @@ module.exports = function main (state, emit) {
     : html`<span class="lightbox__icon"></span>`
 
   return html`<body>
-    <nav><h1><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
+    <nav><h1 class="heading-light"><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
     <div class="lightbox" onclick=${close}>
       <div class="lightbox-content" >
         <div class="lightbox__icons">
-          <a class="lightbox__icon" alt="instagram story" href="/stories/${currentImage.name}">⬍</a>
-          <a class="lightbox__icon" alt="full size" href="/storage/${currentImage.name}">+</a>
-          <a class="lightbox__icon" alt="home" href="/">✕</a>
+          <a class="lightbox__text" alt="instagram story" href="/stories/${currentImage.name}">ig-story</a>
+          <a class="lightbox__text" alt="full size" href="/storage/${currentImage.name}">100%</a>
+          <a class="lightbox__text" alt="home" href="/">close</a>
         </div>
         <a alt="small size" href="/small/${currentImage.name}">
           <img class="lightbox-image" src="/small/${currentImage.name}"/>
