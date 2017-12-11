@@ -5,7 +5,7 @@ const debug = require('debug')('hub:views:main')
 module.exports = function main (state, emit) {
   debug('main render')
   return html`<body>
-      <nav><h1><a href="/" title="share"><span>📷 ${state.images ? state.images.length : 0}</span></a></h1></nav>
+      <nav><h1><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
       <div class="image-container">
         <ul>${state.images.map(i => image(i, emit))}</ul>
       </div>
