@@ -8,3 +8,5 @@ fixtures
 media
 node_modules
 dist/*.js
+wpa_supplicant.conf
+*.retry

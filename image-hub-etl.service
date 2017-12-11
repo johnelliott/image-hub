@@ -7,7 +7,7 @@ Environment=STORAGE_PATH=/media/storage
 Environment=EXIFTOOL_PATH=/usr/bin/exiftool
 Type=simple
 WorkingDirectory=/home/pi/image-hub
-ExecStart=/home/pi/.nvm/versions/node/v8.9.1/bin/node /home/pi/image-hub/etl.js
+ExecStart=/home/pi/.nvm/versions/node/v8.9.2/bin/node /home/pi/image-hub/etl.js
 Restart=on-failure
 RestartSec=1
 

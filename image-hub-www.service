@@ -5,7 +5,7 @@ After=network.target
 [Service]
 EnvironmentFile=/home/pi/image-hub/.env
 Type=simple
-ExecStart=/home/pi/.nvm/versions/node/v8.9.1/bin/node /home/pi/image-hub/bin/www
+ExecStart=/home/pi/.nvm/versions/node/v8.9.2/bin/node /home/pi/image-hub/bin/www
 Restart=on-failure
 RestartSec=1
 

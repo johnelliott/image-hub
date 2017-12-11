@@ -4,12 +4,12 @@
     user: pi
     cron_email: johnelliott703@gmail.com
     nvm_version: v0.33.6
-    node_version: v8.9.1
+    node_version: v8.9.2
     image_hub_app_version: master
     image_hub_app_path: /home/{{ user }}/image-hub
     github_key: /home/{{ user }}/.ssh/github_rsa
   tasks:
-  - name: Install apt packages
+  - name: install apt packages
     become: true
     apt: pkg={{ item }} update_cache=yes cache_valid_time=3600 state=present
     with_items:
@@ -17,6 +17,8 @@
       - libssl-dev
       - git
       - vim
+      - tmux
+      - nginx
       - ssmtp
       - mpack
       - rsync
@@ -26,7 +28,7 @@
       - imagemagick
       - graphicsmagick
       - exiftool
-  - name: Download .vimrc
+  - name: download .vimrc
     get_url:
       url: https://raw.githubusercontent.com/johnelliott/dotfiles/master/.vimrc.min
       dest: ~/.vimrc
@@ -36,21 +38,41 @@
     copy: src=~/.ssh/raspi-deploy.pub dest=~/.ssh/ mode=600
   - name: add ssh config
     copy: src=./ssh-config.txt dest=~/.ssh/config
+  - name: copy wifi configuration
+    become: yes
+    copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf
+    # TODO restart wpa supplicant and services e.g. wpa_cli -i wlan0 reconfigure
+
+  # what is mode here??
+  - name: create media dir
+    file: path=/media state=directory owner=root
+    become: true
+  - name: create photo card mount point
+    file: path=/media/card state=directory owner=root
+    become: true
+
+  - name: create photo storage directories
+    file: path=/media/{{ item }} state=directory owner={{ user }} mode=775
+    become: true
+    with_items:
+      - storage
+      - stories
+      - small
 
   - name: Install nvm
     git: repo=https://github.com/creationix/nvm.git dest=/home/{{ user }}/.nvm version={{ nvm_version }}
-  - name: Configure ~/.profile to source nvm
+  - name: configure ~/.profile to source nvm
     lineinfile:
       dest: /home/{{ user }}/.profile
       line: '[ -s $HOME/.nvm/nvm.sh ] && . $HOME/.nvm/nvm.sh  # This loads NVM'
       create: yes
-  - name: Configure ~/.profile to have NVM_DIR
+  - name: configure ~/.profile to have nvm_dir
     lineinfile:
       dest: /home/{{ user }}/.profile
       insertbefore: 'NVM$'
       line: 'export NVM_DIR="$HOME/.nvm"'
       create: yes
-  - name: Install node
+  - name: install node
     shell: . "$HOME/.nvm/nvm.sh" && nvm install "{{ node_version }}"
     args:
       executable: /bin/bash
@@ -60,7 +82,7 @@
     #capture installed node version as ansible variable:
     # https://github.com/leonidas/ansible-nvm/blob/master/tasks/main.yml
     changed_when: "'is already installed.' not in nvm_install_result.stderr"
-  - name: Check if {{ node_version }} is the current node version
+  - name: check if {{ node_version }} is the current node version
     shell: . /home/{{ user }}/.nvm/nvm.sh && nvm current
     args:
       executable: /bin/bash
@@ -74,7 +96,7 @@
     shell: nvm alias default {{ node_version }}
     when: nvm_check_default|failed
 
-  - name: Install image-hub
+  - name: clone image-hub.git
     git:
       repo: ssh://git@github.com/johnelliott/image-hub.git
       dest: ~/image-hub
@@ -82,38 +104,102 @@
       accept_hostkey: yes
       key_file: "{{ github_key }}"
 
+  - name: copy image-hub environment configuration
+    copy: src=./image-hub.env dest={{ image_hub_app_path }}/.env
+
   - name: NPM install
-    shell: . $HOME/.nvm/nvm.sh && npm install
+    shell: . $HOME/.nvm/nvm.sh && npm install && npm run build
     args:
       chdir: "{{ image_hub_app_path }}"
       executable: /bin/bash
 
-  # what is mode here??
-  - name: Create media dir
-    file: path=/media state=directory owner=root
-    become: true
-  - name: Create photo card mount point
-    file: path=/media/card state=directory owner=root
-    become: true
+  # TODO symlink nginx config symlink
+  - name: remove default nginx config
+    become: yes
+    file:
+      dest: /etc/nginx/sites-enabled/default
+      state: absent
+  - name: install nginx config
+    become: yes
+    file:
+      dest: /etc/nginx/sites-enabled/image-hub.nginx.conf
+      src: /home/{{ user }}/image-hub/image-hub.nginx.conf
+      state: link
+      owner: root
+  - name: reload nginx config
+    become: yes
+    shell: /usr/sbin/nginx -s reload
+    args:
+      executable: /bin/bash
 
-  - name: Create photo storage directories
-    file: path=/media/{{ item }} state=directory owner={{ user }} mode=775
-    become: true
-    with_items:
-      - storage
-      - stories
-      - small
 
-  # TODO install systemd services and enable them
-  # TODO install nginx config
-  # TODO install wpa_supplicant for wifi network access
+  # TODO symlink systemd services and enable them
+  # /etc/systemd/system/image-hub-etl.service -> /home/pi/image-hub/image-hub-etl.service
+  - name: install etl service
+    become: yes
+    file:
+      dest: /etc/systemd/system/image-hub-etl.service
+      src: /home/{{ user }}/image-hub/image-hub-etl.service
+      state: link
+      owner: root
+  - name: enable etl service
+    become: yes
+    systemd:
+      name: image-hub-etl
+      enabled: yes
+      state: started
+  # /etc/systemd/system/image-hub-www.service -> /home/pi/image-hub/image-hub-www.service
+  - name: install www service
+    become: yes
+    file:
+      dest: /etc/systemd/system/image-hub-www.service
+      src: /home/{{ user }}/image-hub/image-hub-www.service
+      state: link
+      owner: root
+  - name: enable www service
+    become: yes
+    systemd:
+      name: image-hub-www
+      enabled: yes
+      state: started
 
-  - name: Set cron email address
+  - name: set cron email address
     cronvar:
       name: EMAIL
       value: "{{ cron_email }}"
-  - name: Make cron job for card loop
+  - name: make cron job for card loop
     cron:
       name: "Card loop on reboot"
       special_time: reboot
       job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}//rsync-loop.log"
+
+  handlers:
+  - name: reload systemd config
+    systemd: daemon_reload=yes
+
+    # this isn't used
+  - name: restart nginx
+    become: yes
+    systemd:
+      name: nginx
+      enabled: yes
+      state: restarted
+      daemon_reload: yes
+  - name: restart image-hub-etl
+    become: yes
+    systemd:
+      name: image-hub-etl
+      enabled: yes
+      state: restarted
+  - name: restart image-hub-www
+    become: yes
+    systemd:
+      name: image-hub-www
+      enabled: yes
+      state: restarted
+  # Is this a bad idea? Will I lose ssh connection for ansible?
+  - name: restart networking
+    become: yes
+    service:
+      name: networking
+      state: restarted
