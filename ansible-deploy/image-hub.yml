@@ -133,8 +133,6 @@
       executable: /bin/bash
 
 
-  # TODO symlink systemd services and enable them
-  # /etc/systemd/system/image-hub-etl.service -> /home/pi/image-hub/image-hub-etl.service
   - name: install etl service
     become: yes
     file:
@@ -148,7 +146,7 @@
       name: image-hub-etl
       enabled: yes
       state: started
-  # /etc/systemd/system/image-hub-www.service -> /home/pi/image-hub/image-hub-www.service
+    notify: restart image-hub-etl
   - name: install www service
     become: yes
     file:
@@ -162,6 +160,7 @@
       name: image-hub-www
       enabled: yes
       state: started
+    notify: restart image-hub-www
 
   - name: set cron email address
     cronvar:
@@ -174,17 +173,6 @@
       job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}//rsync-loop.log"
 
   handlers:
-  - name: reload systemd config
-    systemd: daemon_reload=yes
-
-    # this isn't used
-  - name: restart nginx
-    become: yes
-    systemd:
-      name: nginx
-      enabled: yes
-      state: restarted
-      daemon_reload: yes
   - name: restart image-hub-etl
     become: yes
     systemd:
