@@ -96,7 +96,7 @@
     shell: nvm alias default {{ node_version }}
     when: nvm_check_default|failed
 
-  - name: clone image-hub.git
+  - name: clone app
     git:
       repo: ssh://git@github.com/johnelliott/image-hub.git
       dest: ~/image-hub
@@ -107,54 +107,54 @@
   - name: copy image-hub environment configuration
     copy: src=./image-hub.env dest={{ image_hub_app_path }}/.env
 
-  - name: NPM install
+  - name: build app
     shell: . $HOME/.nvm/nvm.sh && npm install && npm run build
     args:
       chdir: "{{ image_hub_app_path }}"
       executable: /bin/bash
 
   # TODO symlink nginx config symlink
-  - name: remove default nginx config
+  - name: nginx prepare
     become: yes
     file:
       dest: /etc/nginx/sites-enabled/default
       state: absent
-  - name: install nginx config
+  - name: nginx install
     become: yes
     file:
       dest: /etc/nginx/sites-enabled/image-hub.nginx.conf
       src: /home/{{ user }}/image-hub/image-hub.nginx.conf
       state: link
       owner: root
-  - name: reload nginx config
+  - name: nginx reload
     become: yes
     shell: /usr/sbin/nginx -s reload
     args:
       executable: /bin/bash
 
 
-  - name: install etl service
+  - name: install etl
     become: yes
     file:
       dest: /etc/systemd/system/image-hub-etl.service
       src: /home/{{ user }}/image-hub/image-hub-etl.service
       state: link
       owner: root
-  - name: enable etl service
+  - name: enable etl
     become: yes
     systemd:
       name: image-hub-etl
       enabled: yes
       state: started
     notify: restart image-hub-etl
-  - name: install www service
+  - name: install www
     become: yes
     file:
       dest: /etc/systemd/system/image-hub-www.service
       src: /home/{{ user }}/image-hub/image-hub-www.service
       state: link
       owner: root
-  - name: enable www service
+  - name: enable www
     become: yes
     systemd:
       name: image-hub-www
@@ -162,24 +162,24 @@
       state: started
     notify: restart image-hub-www
 
-  - name: set cron email address
+  - name: cron email
     cronvar:
       name: EMAIL
       value: "{{ cron_email }}"
-  - name: make cron job for card loop
+  - name: cron job
     cron:
       name: "Card loop on reboot"
       special_time: reboot
       job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}//rsync-loop.log"
 
   handlers:
-  - name: restart image-hub-etl
+  - name: restart etl
     become: yes
     systemd:
       name: image-hub-etl
       enabled: yes
       state: restarted
-  - name: restart image-hub-www
+  - name: restart www
     become: yes
     systemd:
       name: image-hub-www
