@@ -1,9 +1,9 @@
 const html = require('choo/html')
 const image = require('./image.js')
-const debug = require('debug')('hub:views:main')
+const debug = require('debug')('hub:views:grid')
 
-module.exports = function main (state, emit) {
-  debug('main render')
+module.exports = function grid (state, emit) {
+  debug('grid render')
   return html`<body>
       <nav><h1><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
       <div class="image-container">

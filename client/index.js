@@ -2,7 +2,7 @@ const debug = require('debug')('hub:views:app')
 debug('initialState', global.window.initialState)
 const choo = require('choo')
 const html = require('choo/html')
-const main = require('./main.js')
+const grid = require('./grid.js')
 const detail = require('./detail.js')
 
 // Choo app
@@ -13,7 +13,7 @@ app.route('/:crop/:image', function (state, emit) {
   debug('params', state.params)
   return html`<body><img src="${state.href}"></body>`
 })
-app.route('/', main)
+app.route('/', grid)
 
 app.use(function (state, emitter) {
   emitter.on('navigate', function () {

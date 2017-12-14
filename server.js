@@ -129,10 +129,10 @@ app.use('/', express.static(path.join(__dirname, 'public')))
  * CHOO ROUTE
  */
 const choo = require('choo')
-const main = require('./client/main.js')
+const grid = require('./client/grid.js')
 const detail = require('./client/detail.js')
 const chooApp = choo()
-chooApp.route('/', main)
+chooApp.route('/', grid)
 chooApp.route('/view/:image', detail)
 
 app.get('/', function (req, res, next) {
