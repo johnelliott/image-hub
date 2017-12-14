@@ -5,15 +5,17 @@
   "main": "server.js",
   "scripts": {
     "start": "DEBUG=hub:* NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
+    "service:status": "systemctl status image-hub-*.service && systemctl status nginx.service",
     "service:restart": "sudo systemctl restart image-hub-www.service && sudo systemctl restart image-hub-etl.service",
     "service:stop": "sudo systemctl stop image-hub-www.service && sudo systemctl stop image-hub-etl.service",
     "service:start": "sudo systemctl start image-hub-www.service && sudo systemctl start image-hub-etl.service",
-    "watch": "nodemon --ignore ./dist --exec npm run build",
-    "build": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js",
-    "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
-    "status": "systemctl status image-hub-*.service && systemctl status nginx.service",
+    "build": "npm run bundle && npm run uglify",
+    "bundle": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js s",
+    "watch": "nodemon --ignore ./dist --exec npm run buildp",
+    "uglify": "uglifyjs --source-map=\"content='./dist/bundle.js.map',url='bundle.min.js.map'\" --safari10 --output ./dist/bundle.min.js -- ./dist/bundle.js",
+    "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -23,24 +25,24 @@
   "author": "John Elliott <johnelliott703@gmail.com> (http://primitivemachine.com/)",
   "license": "",
   "dependencies": {
+    "browserify": "^14.5.0",
     "choo": "^6.6.0",
     "debug": "^3.1.0",
     "dotenv": "^4.0.0",
     "ecstatic": "^3.0.0",
+    "exorcist": "^1.0.0",
     "express": "^4.16.2",
     "gm": "^1.23.0",
     "listdirs": "^3.0.0",
     "node-exiftool": "^2.3.0",
     "node-watch": "^0.5.5",
+    "nodemon": "^1.12.7",
     "pug": "^2.0.0-rc.4",
     "recursive-readdir": "^2.2.1",
     "sharp": "^0.18.4",
-    "sqlite3": "^3.1.13"
+    "sqlite3": "^3.1.13",
+    "standard": "^10.0.3",
+    "uglify-es": "https://github.com/mishoo/UglifyJS2/archive/harmony-v3.2.2.tar.gz"
   },
-  "devDependencies": {
-    "browserify": "^14.5.0",
-    "exorcist": "^1.0.0",
-    "nodemon": "^1.12.1",
-    "standard": "^10.0.3"
-  }
+  "devDependencies": {}
 }
