@@ -11,3 +11,4 @@ dist/*.js
 wpa_supplicant.conf
 *.retry
 inventory.*
+dist/
