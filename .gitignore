@@ -10,3 +10,4 @@ node_modules
 dist/*.js
 wpa_supplicant.conf
 *.retry
+inventory.*

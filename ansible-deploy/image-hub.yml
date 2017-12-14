@@ -1,5 +1,5 @@
 ---
-- hosts: carbon
+- hosts: hubs
   vars:
     user: pi
     cron_email: johnelliott703@gmail.com
@@ -38,7 +38,7 @@
     copy: src=~/.ssh/raspi-deploy.pub dest=~/.ssh/ mode=600
   - name: add ssh config
     copy: src=./ssh-config.txt dest=~/.ssh/config
-  - name: copy wifi configuration
+  - name: wifi
     become: yes
     copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf
     # TODO restart wpa supplicant and services e.g. wpa_cli -i wlan0 reconfigure
