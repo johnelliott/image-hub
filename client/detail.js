@@ -14,10 +14,10 @@ module.exports = function detail (state, emit) {
   }
   const nextImageLink = currentImageIndex + 1 < state.images.length
     ? html`<a next class="lightbox__tap-area" href=/view/${state.images[currentImageIndex + 1].name}></a>`
-    : html`<span class="lightbox__tap-area"></span>`
+    : html`<a class="lightbox__tap-area" href=""></a>`
   const previousImageLink = currentImageIndex > 0
     ? html`<a prev class="lightbox__tap-area" href=/view/${state.images[currentImageIndex - 1].name}></a>`
-    : html`<span class="lightbox__tap-area"></span>`
+    : html`<a class="lightbox__tap-area" href=""></a>`
 
   return html`<body>
     <nav><h1 class="heading-light"><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
