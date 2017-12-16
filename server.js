@@ -228,6 +228,24 @@ const getFormData = multer().single()
 app.get('/admin', function (req, res, next) {
   res.render('admin')
 })
+
+/**
+ * return a promise for the deleted directory
+ */
+function rimRafJpgDir (dir) {
+  return new Promise((resolve, reject) => {
+    rimraf(path.join(dir, '*.JPG'), (err, result) => {
+      debug(err, result)
+      if (err) {
+        debug(err)
+        return reject(err)
+      }
+      debug('rimraf result', result)
+      resolve(result || 'deleted')
+    })
+  })
+}
+
 app.post('/admin', getFormData, function handleFormData (req, res, next) {
   debug('command', req.body.command)
 
@@ -248,47 +266,15 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
         })
       })
     },
-    small: () => {
-      return new Promise((resolve, reject) => {
-        rimraf(path.join(SMALL_PATH, '*.JPG'), (err, result) => {
-          debug(err, result)
-          if (err) {
-            debug(err)
-            return reject(err)
-          }
-          debug('rimraf result', result)
-          resolve(result)
-        })
-      })
-    },
-    stories: () => {
-      return new Promise((resolve, reject) => {
-        rimraf(path.join(STORIES_PATH, '*.JPG'), (err, result) => {
-          debug(err, result)
-          if (err) {
-            debug(err)
-            return reject(err)
-          }
-          debug('rimraf result', result)
-          resolve(result)
-        })
-      })
-    },
-    storage: () => {
-      return new Promise((resolve, reject) => {
-        rimraf(path.join(STORAGE_PATH, '*.JPG'), (err, result) => {
-          debug(err, result)
-          if (err) {
-            debug(err)
-            return reject(err)
-          }
-          debug('rimraf result', result)
-          resolve(result)
-        })
-      })
-    },
+    small: () => rimRafJpgDir(SMALL_PATH),
+    stories: () => rimRafJpgDir(STORIES_PATH),
+    storage: () => rimRafJpgDir(STORAGE_PATH),
     media: () => {
-      return null
+      return Promise.all([
+        rimRafJpgDir(SMALL_PATH),
+        rimRafJpgDir(STORIES_PATH),
+        rimRafJpgDir(STORAGE_PATH)
+      ]).then(arr => arr[0])
     }
   }
 

@@ -7,12 +7,15 @@ const watch4jpegs = require('./lib/watch.js')
 
 require('dotenv').config()
 
-const STORAGE_PATH = process.env.STORAGE_PATH
-if (!STORAGE_PATH) {
-  console.error(new Error('no STORAGE_PATH'))
+const MEDIA_PATH = process.env.MEDIA_PATH
+if (!MEDIA_PATH) {
+  console.error(new Error('MEDIA_PATH'))
   process.exit(1)
 }
+const STORAGE = 'storage'
+const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 debug('STORAGE_PATH', STORAGE_PATH)
+
 const EXIFTOOL_PATH = process.env.EXIFTOOL_PATH
 if (!EXIFTOOL_PATH) {
   console.error(new Error('no EXIFTOOL_PATH'))
