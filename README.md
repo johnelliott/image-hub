@@ -57,5 +57,7 @@ turn off server rendering for debugging
 - get a host that runs node, graphicsmagick, has SD card reader (only two models are coded in)
 - hosts must be configured by SSH
 - host name must be put in the ansible inventory file
+- cd into ansible-deploy directory
 - put `~/.ssh/raspi-deploy` key in place
 - run `ansible-playbook image-hub.yml`
+- run `ansible-playbook image-hub.yml --start-at-task='clone app'` for git-only chanages
