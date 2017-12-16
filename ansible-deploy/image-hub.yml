@@ -103,6 +103,7 @@
       version: "{{ image_hub_app_version }}"
       accept_hostkey: yes
       key_file: "{{ github_key }}"
+      force: true
 
   - name: copy image-hub environment configuration
     copy: src=./image-hub.env dest={{ image_hub_app_path }}/.env
