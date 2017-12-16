@@ -45,6 +45,9 @@ const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME 
   })
 })
 
+/**
+ * Resize small images to disk
+ */
 function smallResize (from, to) {
   return sharp(from)
     .resize(SIZE, SIZE)
@@ -54,6 +57,10 @@ function smallResize (from, to) {
     .toFile(to)
 }
 
+/**
+ * Resize small images to disk for images created within a time range of an image
+ * fileName the image at the center of the range
+ */
 function generateSmallImages (fileName) {
   const range = '10 second'
   db.all(`
@@ -73,6 +80,53 @@ function generateSmallImages (fileName) {
         smallResize(path.join(STORAGE_PATH, i), path.join(SMALL_PATH, i)).catch(debug)
       })
     }
+  })
+}
+
+/**
+ * Returns Promise for deleted directory
+ */
+function rimRafJpgDir (dir) {
+  return new Promise((resolve, reject) => {
+    const glob = path.join(dir, '*.JPG')
+    rimraf(glob, (err, result) => {
+      debug(err, result)
+      if (err) {
+        debug(err)
+        return reject(err)
+      }
+      debug('rimraf result', result)
+      resolve(result || `deleted ${glob}`)
+    })
+  })
+}
+
+/**
+ * Returns Promise for deleted directories
+ */
+function rimRafMedia () {
+  return Promise.all([
+    rimRafJpgDir(SMALL_PATH),
+    rimRafJpgDir(STORIES_PATH),
+    rimRafJpgDir(STORAGE_PATH)
+  ]).then(arr => arr[0])
+}
+/**
+ * Returns Promise for deleted directories
+ */
+function clearDB () {
+  debug('running db command')
+  // TODO
+  return new Promise((resolve, reject) => {
+    db.run('delete FROM image', (err, result) => {
+      debug(err, result)
+      if (err) {
+        debug(err)
+        return reject(err)
+      }
+      debug('result', result)
+      resolve(result || 'deleted')
+    })
   })
 }
 
@@ -229,53 +283,16 @@ app.get('/admin', function (req, res, next) {
   res.render('admin')
 })
 
-/**
- * return a promise for the deleted directory
- */
-function rimRafJpgDir (dir) {
-  return new Promise((resolve, reject) => {
-    rimraf(path.join(dir, '*.JPG'), (err, result) => {
-      debug(err, result)
-      if (err) {
-        debug(err)
-        return reject(err)
-      }
-      debug('rimraf result', result)
-      resolve(result || 'deleted')
-    })
-  })
-}
-
 app.post('/admin', getFormData, function handleFormData (req, res, next) {
   debug('command', req.body.command)
 
   const commands = {
-    all: () => null,
-    db: () => {
-      debug('running db command')
-      // TODO
-      return new Promise((resolve, reject) => {
-        db.run('delete FROM image', (err, result) => {
-          debug(err, result)
-          if (err) {
-            debug(err)
-            return reject(err)
-          }
-          debug('result', result)
-          resolve(result || 'deleted')
-        })
-      })
-    },
+    all: () => Promise.all([clearDB(), rimRafMedia()]).then(arr => 'deleted all'),
+    db: clearDB,
     small: () => rimRafJpgDir(SMALL_PATH),
     stories: () => rimRafJpgDir(STORIES_PATH),
     storage: () => rimRafJpgDir(STORAGE_PATH),
-    media: () => {
-      return Promise.all([
-        rimRafJpgDir(SMALL_PATH),
-        rimRafJpgDir(STORIES_PATH),
-        rimRafJpgDir(STORAGE_PATH)
-      ]).then(arr => arr[0])
-    }
+    media: rimRafMedia
   }
 
   if (commands[req.body.command]) {
