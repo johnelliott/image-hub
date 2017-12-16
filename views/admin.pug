@@ -1,0 +1,31 @@
+extends html.pug
+block content
+  body
+    h1 PHOTON
+    h2 🚨 danger zone 🚨
+    p Enter the text with what you want to delete
+    table
+      th send
+      th effect
+      tr
+        td all
+        td empty database and delete all images
+      tr
+        td db
+        td empty thumbnail database
+      tr
+        td images
+        td delete all images
+      tr
+        td storage
+        td delete full-size images
+      tr
+        td stories
+        td delete ig story images
+      tr
+        td small
+        td delete small images
+    <form id="form" class="admin" action="/admin" method="post" enctype="multipart/form-data">
+      <input type="text" name="command" >
+      <input type="submit" value="Send">
+    </form>
