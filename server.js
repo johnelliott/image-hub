@@ -2,11 +2,13 @@ require('dotenv').config()
 const debug = require('debug')('hub:server')
 const path = require('path')
 const express = require('express')
+const multer = require('multer')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
 const matt = require('./lib/treatments/matt-story.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
+const rimraf = require('rimraf')
 
 const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
 debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
@@ -222,13 +224,108 @@ app.get('/view/:image', function (req, res, next) {
   })
 })
 
+const getFormData = multer().single()
 app.get('/admin', function (req, res, next) {
   res.render('admin')
 })
-app.post('/admin', function (req, res, next) {
-  // read form data with multer
-  debug('post to admin thing')
-  res.render('admin')
+app.post('/admin', getFormData, function handleFormData (req, res, next) {
+  debug('command', req.body.command)
+
+  const commands = {
+    all: () => null,
+    db: () => {
+      debug('running db command')
+      // TODO
+      return new Promise((resolve, reject) => {
+        db.run('delete FROM image', (err, result) => {
+          debug(err, result)
+          if (err) {
+            debug(err)
+            return reject(err)
+          }
+          debug('result', result)
+          resolve(result || 'deleted')
+        })
+      })
+    },
+    small: () => {
+      return new Promise((resolve, reject) => {
+        rimraf(path.join(SMALL_PATH, '*.JPG'), (err, result) => {
+          debug(err, result)
+          if (err) {
+            debug(err)
+            return reject(err)
+          }
+          debug('rimraf result', result)
+          resolve(result)
+        })
+      })
+    },
+    stories: () => {
+      return new Promise((resolve, reject) => {
+        rimraf(path.join(STORIES_PATH, '*.JPG'), (err, result) => {
+          debug(err, result)
+          if (err) {
+            debug(err)
+            return reject(err)
+          }
+          debug('rimraf result', result)
+          resolve(result)
+        })
+      })
+    },
+    storage: () => {
+      return new Promise((resolve, reject) => {
+        rimraf(path.join(STORAGE_PATH, '*.JPG'), (err, result) => {
+          debug(err, result)
+          if (err) {
+            debug(err)
+            return reject(err)
+          }
+          debug('rimraf result', result)
+          resolve(result)
+        })
+      })
+    },
+    media: () => {
+      return null
+    }
+  }
+
+  if (commands[req.body.command]) {
+    // Do async commmand, then set info after
+    commands[req.body.command]().then(result => {
+      debug('result', result)
+      res.locals.statusText = result
+      res.status(200)
+      next()
+    }).catch(reason => {
+      res.status(406)
+      res.locals.statusText = 'Not acceptable' + reason
+      next()
+    })
+  } else {
+    res.status(406)
+    res.locals.statusText = 'Not acceptable'
+    next()
+  }
+}, function renderFormResponse (req, res, next) {
+  debug('running send middleware')
+  return res.format({
+    'text/html': function () {
+      // Not necessarily an erorr page per se.
+      res.render('error', {
+        status: res.statusCode,
+        statusText: res.locals.statusText
+      })
+    },
+    'application/json': function () {
+      res.json({ status: res.statusCode, statusText: res.locals.statusText })
+    },
+    'default': function () {
+      res.send(res.locals.statusText)
+    }
+  })
 })
 
 // catch 404 and forward to error handler
@@ -245,7 +342,7 @@ app.use(function (req, res, next) {
     'application/json': function () {
       debug('rendering application/json error')
       res.status(404).json({ Error: { status: 404, statusText: 'Not found' } })
-      debug('body', res.body)
+      debug('command', res.body.command)
     },
     'default': function () {
       res.sendStatus(404)
