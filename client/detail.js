@@ -28,9 +28,11 @@ module.exports = function detail (state, emit) {
           <a class="lightbox__text" alt="full size" href="/storage/${currentImage.name}">100%</a>
           <a class="lightbox__text" alt="home" href="/">close</a>
         </div>
-        <a alt="small size" href="/small/${currentImage.name}">
-          <img class="lightbox-image" src="/small/${currentImage.name}"/>
-        </a>
+        <div class="lightbox__slide">
+          <a alt="small size" href="/small/${currentImage.name}">
+            <img class="lightbox-image" src="/small/${currentImage.name}"/>
+          </a>
+        </div>
         <div class="lightbox__icons">
           ${previousImageLink}
           ${nextImageLink}

@@ -13,7 +13,7 @@
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
     "build": "npm run bundle && npm run uglify",
     "bundle": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js s",
-    "watch": "nodemon --ignore ./dist --exec npm run buildp",
+    "watch": "nodemon --ignore ./dist --exec npm run build",
     "uglify": "uglifyjs --source-map=\"content='./dist/bundle.js.map',url='bundle.min.js.map'\" --safari10 --output ./dist/bundle.min.js -- ./dist/bundle.js",
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "test": "echo \"Error: no test specified\" && exit 1"
