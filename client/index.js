@@ -39,10 +39,10 @@ app.use(function (state, emitter) {
       .catch(debug)
   })
   // TODO build cursor-based server endpoing then emit fetch with max_id
-  //if (!state.images.lenght) {
+  // if (!state.images.lenght) {
   //  debug('no images, fetching from server')
   //  emitter.emit('fetch')
-  //}
+  // }
 })
 
 debug('mounting app')

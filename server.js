@@ -222,9 +222,35 @@ app.get('/view/:image', function (req, res, next) {
   })
 })
 
+app.get('/admin', function (req, res, next) {
+  res.render('admin')
+})
+app.post('/admin', function (req, res, next) {
+  // read form data with multer
+  debug('post to admin thing')
+  res.render('admin')
+})
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  return res.status(404).end()
+  return res.format({
+    'text/html': function () {
+      debug('rendering text/html')
+      res.status(404)
+      res.render('error', {
+        status: res.statusCode,
+        statusText: 'Not found'
+      })
+    },
+    'application/json': function () {
+      debug('rendering application/json error')
+      res.status(404).json({ Error: { status: 404, statusText: 'Not found' } })
+      debug('body', res.body)
+    },
+    'default': function () {
+      res.sendStatus(404)
+    }
+  })
 })
 
 // Error handlers
@@ -233,8 +259,8 @@ app.use(function (err, req, res, next) {
   debug('dev error handler', err)
   res.status(err.status || 500)
   res.render('error', {
-    message: err.message,
-    statusCode: err.status,
+    status: err.statusCode,
+    statusText: err.message,
     err
   })
 })
