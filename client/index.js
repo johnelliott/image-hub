@@ -5,6 +5,8 @@ const html = require('choo/html')
 const grid = require('./grid.js')
 const detail = require('./detail.js')
 
+global.document.addEventListener('touchstart', () => true)
+
 // Choo app
 const app = choo()
 app.route('/view/:image', detail)

@@ -10,7 +10,7 @@ module.exports = function grid (state, emit) {
         <ul>${state.images.map(i => image(i, emit))}</ul>
       </div>
       <footer class="footer">
-        <span>📸</span>
+        <span>👁</span>
       </footer>
     </body>`
 }

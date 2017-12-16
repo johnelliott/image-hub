@@ -13,19 +13,20 @@ module.exports = function detail (state, emit) {
     emit('pushState', '/')
   }
   const nextImageLink = currentImageIndex + 1 < state.images.length
-    ? html`<a next class="lightbox__icon" href=/view/${state.images[currentImageIndex + 1].name}>→</a>`
-    : html`<span class="lightbox__icon"></span>`
+    ? html`<a next class="lightbox__tap-area" href=/view/${state.images[currentImageIndex + 1].name}></a>`
+    : html`<span class="lightbox__tap-area"></span>`
   const previousImageLink = currentImageIndex > 0
-    ? html`<a prev class="lightbox__icon" href=/view/${state.images[currentImageIndex - 1].name}>←</a>`
-    : html`<span class="lightbox__icon"></span>`
+    ? html`<a prev class="lightbox__tap-area" href=/view/${state.images[currentImageIndex - 1].name}></a>`
+    : html`<span class="lightbox__tap-area"></span>`
 
   return html`<body>
     <nav><h1 class="heading-light"><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
     <div class="lightbox" onclick=${close}>
-      <div class="lightbox-content" >
-        <div class="lightbox__icons">
+      <div class="lightbox__content" >
+        <div class="lightbox__menu">
           <a class="lightbox__text" alt="instagram story" href="/stories/${currentImage.name}">ig-story</a>
           <a class="lightbox__text" alt="full size" href="/storage/${currentImage.name}">100%</a>
+          <a class="lightbox__text" alt="web size" href="/small/${currentImage.name}">web size</a>
           <a class="lightbox__text" alt="home" href="/">close</a>
         </div>
         <div class="lightbox__slide">
@@ -33,9 +34,14 @@ module.exports = function detail (state, emit) {
             <img class="lightbox-image" src="/small/${currentImage.name}"/>
           </a>
         </div>
-        <div class="lightbox__icons">
+          <a alt="small size" href="/small/${currentImage.name}">
+        <div class="lightbox__buttons">
           ${previousImageLink}
           ${nextImageLink}
+        </div>
+          </a>
+        <div class="lightbox__menu lightbox__menu--centered">
+          <span class="lightbox__text">${currentImageIndex + 1} of ${state.images.length}</span>
         </div>
       </div>
     </div>

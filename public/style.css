@@ -27,6 +27,10 @@ h1,h2,h3 {
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+a:active {
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+}
 .heading-light {
   color: silver;
 }
@@ -133,27 +137,37 @@ a {
   align-items: center;
   justify-content: center;
 }
-.lightbox__icons {
-  display: flex;
-  width: 100%;
-  padding: 0.5em;
-  justify-content: space-between;
-}
-.lightbox__icon {
-  margin: 0 0.2em;
-  font-size: 55px;
-}
-.lightbox__text {
-  margin: 11px;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-}
-.lightbox-content {
+.lightbox__content {
   display: flex;
   width: 100%;
   height: 100%;
   justify-content: space-between;
   flex-direction: column;
+}
+.lightbox__menu {
+  display: flex;
+  width: 100%;
+  padding: 0.75em;
+  justify-content: space-between;
+}
+.lightbox__menu--centered {
+  justify-content: space-around;
+}
+.lightbox__buttons {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  position: absolute;
+  top: 15%;
+  bottom: 10%;
+}
+.lightbox__tap-area {
+  width: 37%;
+}
+.lightbox__text {
+  margin: 11px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
 }
 .lightbox__slide {
   position: relative;
