@@ -122,6 +122,7 @@
       name: "{{ user }}"
       groups: systemd-journal
       append: true
+    become: true
 
   # TODO symlink nginx config symlink
   - name: nginx prepare
