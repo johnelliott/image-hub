@@ -1,5 +1,6 @@
 require('dotenv').config()
 const debug = require('debug')('hub:server')
+const morgan = require('morgan')
 const path = require('path')
 const express = require('express')
 const multer = require('multer')
@@ -132,6 +133,8 @@ function clearDB () {
 
 var app = express()
 app.set('env', process.env.NODE_ENV)
+const morganLogPreset = app.get('env') === 'development' ? 'dev' : 'combined'
+app.use(morgan(morganLogPreset))
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
