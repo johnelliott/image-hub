@@ -114,6 +114,15 @@
       chdir: "{{ image_hub_app_path }}"
       executable: /bin/bash
 
+  - name: create systemd journal dir
+    file: path=/var/log/journal state=directory mode=775 group=systemd-journal
+    become: true
+  - name: add user to systemd-journal group
+    user:
+      name: "{{ user }}"
+      groups: systemd-journal
+      append: true
+
   # TODO symlink nginx config symlink
   - name: nginx prepare
     become: yes
@@ -132,7 +141,6 @@
     shell: /usr/sbin/nginx -s reload
     args:
       executable: /bin/bash
-
 
   - name: install etl
     become: yes
