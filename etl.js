@@ -57,7 +57,16 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }
   )
 }
 
-const workers = workerFarm(require.resolve('./lib/getImageDataWorker'))
+const farmOptions = {
+  // maxCallsPerWorker: Infinity,
+  maxConcurrentWorkers: require('os').cpus().length - 1,
+  maxConcurrentCallsPerWorker: 1
+  // maxConcurrentCalls: Infinity,
+  // maxCallTime: Infinity,
+  // maxRetries: Infinity,
+  // autoStart: false
+}
+const workers = workerFarm(farmOptions, require.resolve('./lib/getImageDataWorker'))
 
 if (require.main === module) {
   debug('watching')
