@@ -58,7 +58,7 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }
 }
 
 const farmOptions = {
-  // maxCallsPerWorker: Infinity,
+  maxCallsPerWorker: 1,
   maxConcurrentWorkers: require('os').cpus().length - 1,
   maxConcurrentCallsPerWorker: 1
   // maxConcurrentCalls: Infinity,
@@ -78,8 +78,7 @@ if (require.main === module) {
       debug('Saw new image', name)
       workers(name, (err, model) => {
         if (err) {
-          debug(err)
-          process.exit(1)
+          return debug('error in worker callback', err)
         }
         debug('got model from worker', model.fileName)
         addImageToDatabase(model)
