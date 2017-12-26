@@ -1,9 +1,10 @@
+require('dotenv').config()
 const debug = require('debug')('hub:etl')
 const path = require('path')
+const workerFarm = require('worker-farm')
+const watch = require('node-watch')
 const sqlite3 = require('sqlite3').verbose()
-const exiftool = require('node-exiftool')
 const createImages = require('./lib/schema.js').createImages
-const watch4jpegs = require('./lib/watch.js')
 
 require('dotenv').config()
 
@@ -37,10 +38,6 @@ const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, res
   })
 })
 
-function exifDateTimeToSQLite3Time (time) {
-  return [time.split(' ')[0].split(':').join('-'), time.split(' ')[1]].join(' ')
-}
-
 function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }) {
   debug('Running insert', fileName)
   db.run(
@@ -60,42 +57,24 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }
   )
 }
 
-function getImgData (path) {
-  const ep = new exiftool.ExiftoolProcess(EXIFTOOL_PATH)
-  // Add close listener
-  ep.on(exiftool.events.EXIT, () => {
-    debug('exiftool process exited')
-  })
-
-  // Open an exiftool process
-  const openExiftoolProcess = ep
-    .open()
-    .then(pid => {
-      debug('Started exiftool process %s', pid)
-      return ep
-    })
-
-  openExiftoolProcess.then(() => {
-    return ep.readMetadata(path, ['b', 'fast2', 'FileName', 'ThumbnailImage', 'DateTimeOriginal', 'if \'-ThumbnailImage\''])
-  })
-    .then(result => {
-      // create db entry
-      // debug(result.data)
-      const model = {
-        fileName: result.data[0].FileName,
-        dateTimeOriginal: exifDateTimeToSQLite3Time(result.data[0].DateTimeOriginal),
-        fullPath: path,
-        thumbnail: result.data[0].ThumbnailImage
-      }
-      debug('model path to add', model.fullPath)
-      return addImageToDatabase(model)
-    })
-    .then(() => ep.close())
-    .catch(debug)
-}
+const workers = workerFarm(require.resolve('./lib/getImageDataWorker'))
 
 if (require.main === module) {
-  watch4jpegs(STORAGE_PATH, getImgData)
+  debug('watching')
+  watch(STORAGE_PATH, {
+    filter: new RegExp(/.JPG$/, 'i'),
+    recursive: true
+  }, (evt, name) => {
+    if (evt === 'update') {
+      debug('Saw new image', name)
+      workers(name, (err, model) => {
+        if (err) {
+          debug(err)
+          process.exit(1)
+        }
+        debug('got model from worker', model.fileName)
+        addImageToDatabase(model)
+      })
+    }
+  })
 }
-
-exports.addImageToDatabase = addImageToDatabase
