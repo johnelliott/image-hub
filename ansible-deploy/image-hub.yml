@@ -171,6 +171,20 @@
       enabled: yes
       state: started
     notify: restart image-hub-www
+  - name: install display
+    become: yes
+    file:
+      dest: /etc/systemd/system/image-hub-display.service
+      src: /home/{{ user }}/image-hub/image-hub-display.service
+      state: link
+      owner: root
+  - name: enable display
+    become: yes
+    systemd:
+      name: image-hub-display
+      enabled: yes
+      state: started
+    notify: restart image-hub-display
 
   - name: cron email
     cronvar:
@@ -193,6 +207,12 @@
     become: yes
     systemd:
       name: image-hub-www
+      enabled: yes
+      state: restarted
+  - name: restart display
+    become: yes
+    systemd:
+      name: image-hub-display
       enabled: yes
       state: restarted
   # Is this a bad idea? Will I lose ssh connection for ansible?

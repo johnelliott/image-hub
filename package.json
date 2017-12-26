@@ -42,6 +42,8 @@
     "node-exiftool": "^2.3.0",
     "node-watch": "^0.5.5",
     "nodemon": "^1.12.7",
+    "oled-font-5x7": "^1.0.0",
+    "oled-ssd1306-i2c": "https://github.com/jaimehrubiks/oled_ssd1306_i2c.git",
     "pug": "^2.0.0-rc.4",
     "recursive-readdir": "^2.2.1",
     "rimraf": "^2.6.2",
