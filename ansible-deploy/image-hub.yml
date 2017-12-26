@@ -156,6 +156,7 @@
       name: image-hub-etl
       enabled: yes
       state: started
+      daemon_reload: yes
     notify: restart image-hub-etl
   - name: install www
     become: yes
@@ -170,6 +171,7 @@
       name: image-hub-www
       enabled: yes
       state: started
+      daemon_reload: yes
     notify: restart image-hub-www
   - name: install display
     become: yes
@@ -184,6 +186,7 @@
       name: image-hub-display
       enabled: yes
       state: started
+      daemon_reload: yes
     notify: restart image-hub-display
 
   - name: cron email
