@@ -194,7 +194,7 @@
     cron:
       name: "Card loop on reboot"
       special_time: reboot
-      job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}//rsync-loop.log"
+      job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}/rsync-loop.log"
 
   handlers:
   - name: restart etl
