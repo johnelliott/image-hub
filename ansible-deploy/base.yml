@@ -1,0 +1,43 @@
+---
+- hosts: hubs
+  vars:
+    user: pi
+    cron_email: johnelliott703@gmail.com
+  tasks:
+  - name: install apt packages
+    become: true
+    apt: pkg={{ item }} update_cache=yes cache_valid_time=3600 state=present
+    with_items:
+      - build-essential
+      - libssl-dev
+      - avahi-daemon
+      - vim
+      - tmux
+      - ssmtp
+      - mpack
+      - rsync
+  - name: download .vimrc
+    get_url:
+      url: https://raw.githubusercontent.com/johnelliott/dotfiles/master/.vimrc.min
+      dest: ~/.vimrc
+  - name: wifi
+    become: yes
+    copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf
+    # TODO restart wpa supplicant and services e.g. wpa_cli -i wlan0 reconfigure
+    # notify: reload-wifi
+
+  - name: cron email
+    cronvar:
+      name: EMAIL
+      value: "{{ cron_email }}"
+
+  handlers:
+  - name: reload-wifi
+    become: yes
+    shell: wpa_cli -i wlan0 reconfigure
+  # Is this a bad idea? Will I lose ssh connection for ansible?
+  - name: restart networking
+    become: yes
+    service:
+      name: networking
+      state: restarted
