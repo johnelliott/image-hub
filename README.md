@@ -17,6 +17,7 @@ The intended hardware is a Raspberry Pi 3 board, USB card reader, and USB power 
 - create the directories the node apps expect (see env below)
 
 ## .env example
+place a file named `.env` in the project directory:
 ```ini
 EXIFTOOL_PATH=/bin/exiftool
 MEDIA_PATH=/media
@@ -27,6 +28,7 @@ DISABLE_SERVER_RENDER=false
 ```
 
 ## /media directory structure
+this is the directory structure on the root of the pi filesystem
 ```
 media
 ├── small
@@ -59,5 +61,7 @@ turn off server rendering for debugging
 - host name must be put in the ansible inventory file
 - cd into ansible-deploy directory
 - put `~/.ssh/raspi-deploy` key in place
-- run `ansible-playbook image-hub.yml`
-- run `ansible-playbook image-hub.yml --start-at-task='clone app'` for git-only chanages
+- run `ansible-playbook base.yml` for on-pi development tools
+- run `ansible-playbook app.yml` for the main node.js apps
+- run `ansible-playbook display.yml` for the OLED display
+- run `ansible-playbook app.yml --start-at-task='clone app'` for git-only chanages

@@ -22,6 +22,7 @@
       - imagemagick
       - graphicsmagick
       - exiftool
+      - sqlite3
   - name: add deploy private key
     copy: src=~/.ssh/raspi-deploy dest=~/.ssh/ mode=600
   - name: add deploy public key
