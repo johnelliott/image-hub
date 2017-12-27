@@ -23,8 +23,10 @@ app.use(function (state, emitter) {
   })
   emitter.on('fetch', function () {
     debug('add event')
-    debug('about to fetch')
-    global.fetch(`/`, {
+    // TODO is such a check needed anymore?
+    const sinceQuery = state && state.images && state.images.length > 0 ? `?since=${state.images[state.images.length - 1].name}` : ''
+    debug('sinceQuery', sinceQuery)
+    global.fetch(`/${sinceQuery}`, {
       headers: {
         Accept: 'application/json'
       }
@@ -32,17 +34,12 @@ app.use(function (state, emitter) {
       .then(res => res.ok ? res : new Error('wtf'))
       .then(res => res.json())
       .then(json => {
+        debug('fetched images', `${json[0].name}..${json[json.length - 1].name}`)
         state.images = [].concat(state.images).concat(json)
-          .sort((p, c) => p.date > c.date)
         emitter.emit('render')
       })
       .catch(debug)
   })
-  // TODO build cursor-based server endpoing then emit fetch with max_id
-  // if (!state.images.lenght) {
-  //  debug('no images, fetching from server')
-  //  emitter.emit('fetch')
-  // }
 })
 
 debug('mounting app')

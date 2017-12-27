@@ -13,8 +13,9 @@ body {
     "Apple Color Emoji",
     "Segoe UI Emoji",
     "Segoe UI Symbol";
-  color: #444;
+  color: #353535;
   background: rgb(252, 252, 252);
+  padding-bottom: 62px;
 }
 body > img {
   max-height: 100%;
@@ -46,17 +47,19 @@ a:active {
   color: silver;
 }
 .footer {
-  font-size: 30px;
-  margin: 12px auto 22px auto;
+  font-size: 14px;
+  margin: 16px auto 22px auto;
   display: flex;
   justify-content: center;
 }
 
-.footer > a {
-  display: block;
-  text-align: center;
-  font-size: 36px;
-  padding: 0 10px;
+.footer > button {
+  font-size: inherit;
+  font-weight: bold;
+  color: inherit;
+  border: 1px solid rgb(236, 236, 236);
+  background: rgb(245, 245, 245);
+  padding: 0.65em 1.75em;
 }
 a {
   color: inherit;

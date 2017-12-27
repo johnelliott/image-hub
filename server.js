@@ -195,8 +195,24 @@ chooApp.route('/', grid)
 chooApp.route('/view/:image', detail)
 
 app.get('/', function (req, res, next) {
-  // const dateRangeStatement = `where date_time_created BETWEEN datetime('now', '-1 day') AND datetime('now') `
-  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC`, (err, result) => {
+  const since = req.query.since
+
+  let selectSinceDateTimeClause = ''
+  let whereClause = ''
+  if (since) {
+    debug('req.query.since', since)
+    selectSinceDateTimeClause = `, (SELECT date_time_created FROM image WHERE file_name = '${since}') as sinceDateTime`
+    whereClause = 'WHERE date_time_created < sinceDateTime'
+  }
+
+  db.all(`
+    SELECT file_name, thumbnail, date_time_created
+    ${selectSinceDateTimeClause}
+    FROM image
+    ${whereClause}
+    ORDER BY date_time_created DESC
+    LIMIT 36
+  `, (err, result) => {
     if (err) {
       debug(err)
       next(err)
@@ -319,7 +335,8 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
   debug('running send middleware')
   return res.format({
     'text/html': function () {
-      // Not necessarily an erorr page per se.
+      // Use error template as the template for the admin page
+      // even though it's not an error per se
       res.render('error', {
         status: res.statusCode,
         statusText: res.locals.statusText
