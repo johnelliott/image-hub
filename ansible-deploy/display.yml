@@ -1,5 +1,5 @@
 ---
-- hosts: hubs
+- hosts: displays
   vars:
     user: pi
     nvm_version: v0.33.6
@@ -16,35 +16,17 @@
       - libssl-dev
       - git
       - nginx
-      - exfat-fuse
-      - exfat-utils
-      - ntfs-3g
-      - imagemagick
-      - graphicsmagick
-      - exiftool
-  - name: add deploy private key
-    copy: src=~/.ssh/raspi-deploy dest=~/.ssh/ mode=600
-  - name: add deploy public key
-    copy: src=~/.ssh/raspi-deploy.pub dest=~/.ssh/ mode=600
-  - name: add ssh config
-    copy: src=./ssh-config.txt dest=~/.ssh/config
-
-  # what is mode here??
-  - name: create media dir
-    file: path=/media state=directory owner=root
+      - i2c-tools
+  - name: enable i2c
+    lineinfile: path=/etc/modules line=i2c-dev state=present
     become: true
-  - name: create photo card mount point
-    file: path=/media/card state=directory owner=root
+  - name: unblacklist i2c
+    lineinfile:
+      path: /etc/modprobe.d/raspi-blacklist.conf
+      regexp: '^blacklist i2c-bcm2708'
+      line: '#blacklist i2c-bcm2708'
+      state: present
     become: true
-
-  - name: create photo storage directories
-    file: path=/media/{{ item }} state=directory owner={{ user }} mode=775
-    become: true
-    with_items:
-      - storage
-      - stories
-      - small
-
   - name: Install nvm
     git: repo=https://github.com/creationix/nvm.git dest=/home/{{ user }}/.nvm version={{ nvm_version }}
   - name: configure ~/.profile to source nvm
@@ -94,12 +76,6 @@
   - name: copy image-hub environment configuration
     copy: src=./image-hub.env dest={{ image_hub_app_path }}/.env
 
-  - name: build app
-    shell: . $HOME/.nvm/nvm.sh && npm install && npm run build
-    args:
-      chdir: "{{ image_hub_app_path }}"
-      executable: /bin/bash
-
   - name: create systemd journal dir
     file: path=/var/log/journal state=directory mode=775 group=systemd-journal
     become: true
@@ -110,72 +86,26 @@
       append: true
     become: true
 
-  # TODO symlink nginx config symlink
-  - name: nginx prepare
+  - name: install display
     become: yes
     file:
-      dest: /etc/nginx/sites-enabled/default
-      state: absent
-  - name: nginx install
-    become: yes
-    file:
-      dest: /etc/nginx/sites-enabled/image-hub.nginx.conf
-      src: /home/{{ user }}/image-hub/image-hub.nginx.conf
+      dest: /etc/systemd/system/image-hub-display.service
+      src: /home/{{ user }}/image-hub/image-hub-display.service
       state: link
       owner: root
-  - name: nginx reload
-    become: yes
-    shell: /usr/sbin/nginx -s reload
-    args:
-      executable: /bin/bash
-
-  - name: install etl
-    become: yes
-    file:
-      dest: /etc/systemd/system/image-hub-etl.service
-      src: /home/{{ user }}/image-hub/image-hub-etl.service
-      state: link
-      owner: root
-  - name: enable etl
+  - name: enable display
     become: yes
     systemd:
-      name: image-hub-etl
+      name: image-hub-display
       enabled: yes
       state: started
       daemon_reload: yes
-    notify: restart image-hub-etl
-  - name: install www
-    become: yes
-    file:
-      dest: /etc/systemd/system/image-hub-www.service
-      src: /home/{{ user }}/image-hub/image-hub-www.service
-      state: link
-      owner: root
-  - name: enable www
-    become: yes
-    systemd:
-      name: image-hub-www
-      enabled: yes
-      state: started
-      daemon_reload: yes
-    notify: restart image-hub-www
-
-  - name: cron job
-    cron:
-      name: "Card loop on reboot"
-      special_time: reboot
-      job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}/rsync-loop.log"
+    notify: restart image-hub-display
 
   handlers:
-  - name: restart etl
+  - name: restart display
     become: yes
     systemd:
-      name: image-hub-etl
-      enabled: yes
-      state: restarted
-  - name: restart www
-    become: yes
-    systemd:
-      name: image-hub-www
+      name: image-hub-display
       enabled: yes
       state: restarted
