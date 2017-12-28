@@ -174,9 +174,11 @@
       name: image-hub-etl
       enabled: yes
       state: restarted
+      daemon_reload: yes
   - name: restart www
     become: yes
     systemd:
       name: image-hub-www
       enabled: yes
       state: restarted
+      daemon_reload: yes
