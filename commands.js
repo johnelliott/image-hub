@@ -13,28 +13,6 @@ const DISK = "df -h | awk '$NF==\"/\"{printf \"%d/%dGB %s\", $3,$2,$5}'"
 const SSID = 'iwgetid -r'
 const SERVICES = `sudo systemctl list-units -t service --no-legend --no-pager -a ${SERVICE_NAMES.join(' ')} | tr -s ' ' | cut -d' ' -f1,3`
 
-exports.cpuSync = () => cp.execSync(CPU),
-exports.diskSync = () => cp.execSync(DISK),
-exports.ipSync = () => cp.execSync(IP),
-exports.ssidSync = () => cp.execSync(SSID),
-exports.servicesSync = () => {
-  return cp.execSync(SERVICES, { encoding: 'utf8' })
-    .trim()
-    .split('\n').map(s => {
-      debug('services command closed')
-      const parts = s.split(' ')
-      return {
-        name: parts[0],
-        status: parts[1]
-      }
-    })
-    .filter(s => s.status !== 'active')
-    .map(s => `${s.name.slice(0, -8).split('-').pop()} ${s.status}`)
-    .join(', ')
-}
-exports.memUsageSync = () => cp.execSync(memUsage)
-
-
 function commandPromiseWrapper (command = ssid, options = {}) {
   debug('commandPromiseWrapper running')
   return new Promise((resolve, reject) => {
@@ -62,7 +40,7 @@ exports.services = () => {
       .split('\n').map(s => {
         const parts = s.split(' ')
         return {
-          name: parts[0],
+          name: parts[0].toUpperCase(),
           status: parts[1]
         }
       })
