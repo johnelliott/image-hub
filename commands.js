@@ -7,13 +7,13 @@ const SERVICE_NAMES = [
   'image-hub-etl.service'
 ]
 const CPU = 'top -bn1 | grep load | awk \'{printf "%.2f", $(NF-2)}\''
-const MEMUSAGE = "free -m | awk 'NR==2{printf \"%s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
+// const MEMUSAGE = "free -m | awk 'NR==2{printf \"%s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
 const IP = 'hostname -I | cut -d\' \' -f1'
 const DISK = "df -h | awk '$NF==\"/\"{printf \"%d/%dGB %s\", $3,$2,$5}'"
 const SSID = 'iwgetid -r'
 const SERVICES = `sudo systemctl list-units -t service --no-legend --no-pager -a ${SERVICE_NAMES.join(' ')} | tr -s ' ' | cut -d' ' -f1,3`
 
-function commandPromiseWrapper (command = ssid, options = {}) {
+function commandPromiseWrapper (command, options = {}) {
   debug('commandPromiseWrapper running')
   return new Promise((resolve, reject) => {
     debug('commandPromiseWrapper exec')
@@ -28,7 +28,7 @@ function commandPromiseWrapper (command = ssid, options = {}) {
   })
 }
 
-exports.cpu = () => commandPromiseWrapper(CPU),
+exports.cpu = () => commandPromiseWrapper(CPU)
 exports.disk = () => commandPromiseWrapper(DISK)
 exports.ip = () => commandPromiseWrapper(IP)
 exports.ssid = () => commandPromiseWrapper(SSID)

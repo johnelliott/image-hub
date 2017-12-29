@@ -21,6 +21,7 @@
     "watch": "nodemon --ignore ./dist --exec npm run build",
     "uglify": "uglifyjs --source-map=\"content='./dist/bundle.js.map',url='bundle.min.js.map'\" --safari10 --output ./dist/bundle.min.js -- ./dist/bundle.js",
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
+    "lint": "standard",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

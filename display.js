@@ -16,8 +16,7 @@ function line (startY = 0, text) {
 function updateDisplay () {
   oled.update()
   oled.dimDisplay(true)
-}  
-
+}
 
 // Name promises so we can use them individually
 // via block scope
@@ -52,6 +51,6 @@ services.then(servicesResult => {
         line(16, `${ip}`)
         line(25, `${cpu} avg ${time}`)
         updateDisplay()
-    })
+      })
   }
 })
