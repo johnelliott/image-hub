@@ -40,11 +40,10 @@ services.then(servicesResult => {
       })
   } else {
     debug('normal operation path')
-    var time = new Date()
-    time = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
-
     Promise.all([ssid, ip, cpu])
       .then(results => {
+        const t = new Date()
+        const time = t.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
         const [ssid, ip, cpu] = results
         line(0, `wifi ${ssid}`)
         line(8, `${HOSTNAME}.local`)
