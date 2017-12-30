@@ -11,6 +11,8 @@
       - build-essential
       - libssl-dev
       - avahi-daemon
+      - hostapd
+      - dnsmasq
       - vim
       - tmux
       - ssmtp
@@ -20,17 +22,57 @@
     get_url:
       url: https://raw.githubusercontent.com/johnelliott/dotfiles/master/.vimrc.min
       dest: ~/.vimrc
-  - name: wifi
+  - name: cron email
+    cronvar:
+      name: EMAIL
+      value: "{{ cron_email }}"
+  - name: wpa_supplicant
     become: yes
     copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf
     # TODO restart wpa supplicant and services e.g. wpa_cli -i wlan0 reconfigure
     # notify: reload-wifi
 
-  - name: cron email
-    cronvar:
-      name: EMAIL
-      value: "{{ cron_email }}"
+    # TODO make this a template with SSID and password
+  - name: hostapd config
+    become: yes
+    template:
+      src: ./hostapd.conf.j2
+      dest: /etc/hostapd/hostapd.conf
+      owner: root
+      group: netdev
+      mode: 0664
+  - name: restart hostapd
+    become: yes
+    systemd:
+      name: hostapd
+      enabled: yes
+      state: restarted
+      daemon_reload: yes
+  - name: dnsmasq config
+    become: yes
+    copy:
+      src: ./dnsmasq.conf
+      dest: /etc/dnsmasq.conf
+      owner: root
+      group: root
+      mode: 0644
+  - name: restart dnsmasq
+    become: yes
+    systemd:
+      name: dnsmasq
+      enabled: yes
+      state: restarted
+      daemon_reload: yes
+  - name: dhcpcd config
+    become: yes
+    copy:
+      src: ./dhcpcd.conf
+      dest: /etc/dhcpcd.conf
+      owner: root
+      group: netdev
+      mode: 0664
 
+  # TODO do the routing with IP tables
   handlers:
   - name: reload-wifi
     become: yes
