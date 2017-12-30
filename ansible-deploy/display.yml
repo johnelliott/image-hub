@@ -73,9 +73,6 @@
       key_file: "{{ github_key }}"
       force: true
 
-  - name: copy image-hub environment configuration
-    copy: src=./image-hub.env dest={{ image_hub_app_path }}/.env
-
   - name: create systemd journal dir
     file: path=/var/log/journal state=directory mode=775 group=systemd-journal
     become: true
@@ -86,24 +83,24 @@
       append: true
     become: true
 
-  - name: install display
+  - name: install service
     become: yes
     file:
       dest: /etc/systemd/system/image-hub-display.service
       src: /home/{{ user }}/image-hub/image-hub-display.service
       state: link
       owner: root
-  - name: enable display
+  - name: enable service
     become: yes
     systemd:
       name: image-hub-display
       enabled: yes
       state: started
       daemon_reload: yes
-    notify: restart image-hub-display
+    notify: restart-service
 
   handlers:
-  - name: restart display
+  - name: restart-service
     become: yes
     systemd:
       name: image-hub-display

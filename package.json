@@ -16,6 +16,7 @@
     "bundle": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js s",
     "deploy": "ansible-playbook -i ansible-deploy/dev.ini ansible-deploy/app.yml",
     "deploy-production": "ansible-playbook -i ansible-deploy/production.ini ansible-deploy/app.yml",
+    "deploy-display": "ansible-playbook -i ansible-deploy/inventory.ini ansible-deploy/display.yml",
     "wifi": "ansible-playbook -i ansible-deploy/inventory.ini ansible-deploy/base.yml",
     "ping": "ansible -i ansible-deploy/inventory.ini -m ping hubs",
     "watch": "nodemon --ignore ./dist --exec npm run build",
