@@ -72,7 +72,21 @@
       group: netdev
       mode: 0664
 
-  # TODO do the routing with IP tables
+  - name: iptables config
+    become: yes
+    copy:
+      src: ./iptables.ipv4.nat
+      dest: /etc/iptables.ipv4.nat
+      owner: root
+      group: root
+      mode: 0644
+  - name: configure iptables-restore
+    lineinfile:
+      dest: /home/{{ user }}/.profile
+      insertbefore: '^exit 0$'
+      line: 'iptables-restore < /etc/iptables.ipv4.nat'
+      create: yes
+
   handlers:
   - name: reload-wifi
     become: yes
