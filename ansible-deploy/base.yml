@@ -32,6 +32,14 @@
     # TODO restart wpa supplicant and services e.g. wpa_cli -i wlan0 reconfigure
     # notify: reload-wifi
 
+  - name: configure dhcpcd
+    become: yes
+    lineinfile:
+      path: /etc/default/hostapd
+      regexp: '^DAEMON_CONF=""$'
+      line: 'DAEMON_CONF="/etc/hostapd/hostapd.conf"'
+      state: present
+      create: yes
     # TODO make this a template with SSID and password
   - name: hostapd config
     become: yes
@@ -83,9 +91,10 @@
   - name: configure iptables-restore
     become: yes
     lineinfile:
-      dest: /home/{{ user }}/.profile
+      path: /home/{{ user }}/.profile
       insertbefore: '^exit 0$'
       line: 'iptables-restore < /etc/iptables.ipv4.nat'
+      state: present
       create: yes
 
   handlers:
