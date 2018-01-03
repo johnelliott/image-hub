@@ -81,6 +81,7 @@
       group: root
       mode: 0644
   - name: configure iptables-restore
+    become: yes
     lineinfile:
       dest: /home/{{ user }}/.profile
       insertbefore: '^exit 0$'
