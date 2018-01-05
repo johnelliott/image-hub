@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "DEBUG=hub:* NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
-    "service:status": "sudo systemctl status nginx image-hub-www image-hub-etl",
+    "service:status": "sudo systemctl status nginx image-hub-*",
     "service:restart": "sudo systemctl restart image-hub-etl image-hub-www",
     "service:stop": "sudo systemctl stop image-hub-www.service && sudo systemctl stop image-hub-etl.service",
     "service:start": "sudo systemctl start image-hub-www.service && sudo systemctl start image-hub-etl.service",
