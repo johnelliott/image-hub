@@ -86,13 +86,6 @@ a {
   justify-content: center;
   align-items: center;
 }
-.image-link:active::before {
-  content: "⏳";
-  padding: 0.8em;
-  background: rgba(255,255,255,0.97);
-  position: absolute;
-  pointer-events: none;
-}
 /* iphone 5 */
 @media (min-width: 320px) {
   .image-link {
@@ -128,12 +121,6 @@ a {
 }
 .image-thumb__icon {
   margin: 0 0.25em;
-}
-.image-thumb__icon:active::before {
-  content: "⏳";
-  background: rgba(255,255,255,0.6);
-  position: absolute;
-  pointer-events: none;
 }
 
 .lightbox {
