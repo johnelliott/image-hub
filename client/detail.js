@@ -20,7 +20,7 @@ module.exports = function detail (state, emit) {
     : html`<a class="lightbox__tap-area" href=""></a>`
 
   return html`<body>
-    <nav><h1 class="heading-light"><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
+    <nav><h1 class="heading-light"><a href="/" title="share"><span>Image Hub</span></a></h1></nav>
     <div class="lightbox" onclick=${close}>
       <div class="lightbox__content" >
         <div class="lightbox__menu">

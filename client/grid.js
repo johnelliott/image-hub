@@ -8,7 +8,7 @@ module.exports = function grid (state, emit) {
   }
   debug('grid render')
   return html`<body>
-      <nav><h1><a href="/" title="share"><span>PHOTON</span></a></h1></nav>
+      <nav><h1><a href="/" title="share"><span>Image Hub</span></a></h1></nav>
       <div class="image-container">
         <ul>${state.images.map(i => image(i, emit))}</ul>
       </div>
