@@ -1,22 +1,31 @@
 # Image Hub 👁
-A helper to rapidly share images from your camera.
-A launch pad for your images.
+Helper hardware to rapidly share images from a digital camera
 
-Image Hub is a computer that accepts your camera memory card, ingests any JPEG images, and creates a web gallery served over the local network. Image Hub formats images on demand with download links for publishing to Instagram stories, facebook or other social media.
+Image Hub is a computer that joins your Wifi and accepts your camera memory card. It ingests JPEG images, creates a gallery web-app, and serves the app over the local network. Image Hub provides image browsing and saving for publishing to Instagram stories, facebook or other social media.
 
-The intended hardware is a Raspberry Pi 3 board, USB card reader, and USB power bank. It runs without a display and uses the onboard LED to communicate job progress.
+The intended hardware is a Raspberry Pi 3 board, USB card reader, and USB power bank. A little OLED display is optional.
+
+The display isn't covered here.
 
 ## caveats
-- deploy targets need github keys to clone the source
 - tested with jpegs created by a digital camera, this is easy way to avoid any missing data from jpegs from the web that may have EXIF stripped out
-- the node.js server on port 3000 assume they will be proxied to by nginx on port 80, so they will do a lot of image creation when running locally without nginx
-- the sd card reader I have has the usb hardware id is hard coded, but it's easier to run on mac and drag files into `storage` to add to the ETL/db
+- two sd card readers are supported on Raspberry Pi, but it's easier to run on mac and drag files into `storage` to add to the ETL/db
 
 ## install
 - npm install the node application
-- create the directories the node apps expect (see env below)
+- create the `/media` directory structure the node apps expect
+- create `.env` file
 
-## .env example
+### /media directory structure
+this is the directory structure on the root of the pi filesystem
+```
+media
+├── small
+├── storage
+└── stories
+```
+
+### .env example
 place a file named `.env` in the project directory:
 ```ini
 EXIFTOOL_PATH=/bin/exiftool
@@ -27,21 +36,6 @@ OPTIMISTIC_SMALL=false
 DISABLE_SERVER_RENDER=false
 ```
 
-## /media directory structure
-this is the directory structure on the root of the pi filesystem
-```
-media
-├── small
-├── storage
-└── stories
-```
-
-### server.js feature flags
-#### OPTIMISTIC_SMALL=true
-Optionally create small size crops on disk for images created within 10 seconds of the requested image
-#### SEVER_RENDER_OFF=true
-turn off server rendering for debugging
-
 ## run locally
 - npm run etl in one terminal
 - drag/drop a filename.JPG with exif data (an exif preview thumbnail is necessary, camera pictures work well for this) into the `storage` directory
@@ -49,19 +43,71 @@ turn off server rendering for debugging
 - npm run server in another terminal
 - load up `localhost:3000/all` (all ignores image create dates) to see the server loads
 
+### server.js feature flags
+#### OPTIMISTIC_SMALL=true
+Optionally create small size crops on disk for images created within 10 seconds of the requested image
+#### SEVER_RENDER_OFF=true
+turn off server rendering for debugging
 
 ## logging the www and etl linux systemd services
 - `journalctl -x -e --unit image-hub*.service`
 - `systemctl status image-hub-*.service`
 
-## deploy to a Raspberry Pi
-- Used with ansible 2.4+
-- get a host that runs node, graphicsmagick, has SD card reader (only two models are coded in)
-- hosts must be configured by SSH
-- host name must be put in the ansible inventory file
-- cd into ansible-deploy directory
-- put `~/.ssh/raspi-deploy` key in place
-- run `ansible-playbook base.yml` for on-pi development tools
-- run `ansible-playbook app.yml` for the main node.js apps
-- run `ansible-playbook display.yml` for the OLED display
-- run `ansible-playbook app.yml --start-at-task='clone app'` for git-only chanages
+## hardware setup
+- get a raspberry pi 3 with a large enpugh SD card to keep lots of JPEGS on (32gb+)
+- install Raspbian Stretch lite or Stretch and expand the filesystem, set locales etc.
+- set up the raspi with ssh key access i.e. `$ ssh mypi` lets you run commands via ssh
+- connect some Raspberry Pis with ssh access via their ssh host name on your network
+- get a UGREEN 20250 or Transcend TS-RDF5K card reader to use with the pi
+
+## deploy setup
+- connect prepared Raspberry Pis to the network
+- install [Ansible](https://ansible.com) 2.4+ via [homebrew](https://brew.sh)
+- create create ansible config file for deploys
+- create create ansible inventory file for deploys
+- create wpa_supplicant.conf
+- create extra-vars.json
+- put `~/.ssh/raspi-deploy` key in place that works to get this repository from github
+- npm run deploy
+
+### ansible.cfg example
+located in project directory
+```conf
+[defaults]
+inventory=inventory.ini
+```
+### inventory.ini example
+located in project directory
+```conf
+[hubs]
+hub1sshhost
+hub2sshhostwithdisplay
+[display-hubs]
+hub2sshhostwithdisplay
+```
+### wpa_supplicant.conf example
+located in `this_project_directory/roles/base/files/wpa_supplicant.conf`
+```
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+network={
+	ssid="My iPhone Hotspot"
+	key_mgmt=WPA-PSK
+	psk=wpa_passphrase_result0000000000000000000000000000000000000000000
+	priority=100
+}
+network={
+	ssid="my-home-network"
+	psk=wpa_passphrase_result0000000000000000000000000000000000000000000
+	key_mgmt=WPA-PSK
+	priority=99
+}
+```
+### extra-vars.json example
+located in project directory
+```json
+{
+  "ssid": "image-hub-access-point",
+  "psk": "12345"
+}
+```
