@@ -1,0 +1,4 @@
+---
+- hosts: pis
+  roles:
+  - base

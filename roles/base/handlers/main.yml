@@ -1,0 +1,11 @@
+---
+- name: reload-wifi
+  become: yes
+  shell: wpa_cli -i wlan0 reconfigure
+# Is this a bad idea? Will I lose ssh connection for ansible?
+
+- name: restart networking
+  become: yes
+  service:
+    name: networking
+    state: restarted

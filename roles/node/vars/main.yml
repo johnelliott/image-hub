@@ -1,0 +1,5 @@
+---
+user: pi
+nvm_version: v0.33.8
+node_version: v8.9.4
+github_key: /home/{{ user }}/.ssh/github_rsa

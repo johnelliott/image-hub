@@ -1,0 +1,16 @@
+---
+- hosts: hubs
+  vars:
+    nvm_version: v0.33.8
+    node_version: v8.9.4
+  roles:
+  - base
+  - node
+  - app
+
+- hosts: display-hubs
+  vars:
+    nvm_version: v0.33.8
+    node_version: v8.9.4
+  roles:
+  - display

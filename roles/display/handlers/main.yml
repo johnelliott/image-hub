@@ -1,0 +1,7 @@
+---
+- name: restart-service
+  become: yes
+  systemd:
+    name: image-hub-display
+    enabled: yes
+    state: restarted

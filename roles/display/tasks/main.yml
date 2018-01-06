@@ -1,0 +1,66 @@
+---
+- name: install apt packages
+  become: true
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600 state=present
+  with_items:
+    - build-essential
+    - libssl-dev
+    - git
+    - i2c-tools
+
+- name: enable i2c
+  lineinfile: path=/etc/modules line=i2c-dev state=present
+  become: true
+
+- name: unblacklist i2c
+  lineinfile:
+    path: /etc/modprobe.d/raspi-blacklist.conf
+    regexp: '^blacklist i2c-bcm2708'
+    state: absent
+  become: true
+
+- name: add deploy private key
+  copy: src=~/.ssh/raspi-deploy dest=~/.ssh/ mode=600
+
+- name: add deploy public key
+  copy: src=~/.ssh/raspi-deploy.pub dest=~/.ssh/ mode=600
+
+- name: add ssh config
+  copy: src=ssh-config.txt dest=~/.ssh/config
+
+- name: clone app
+  git:
+    repo: ssh://git@github.com/johnelliott/image-hub.git
+    dest: ~/image-hub
+    version: "{{ image_hub_app_version }}"
+    accept_hostkey: yes
+    key_file: "{{ github_key }}"
+    force: false
+
+- name: create systemd journal dir
+  file: path=/var/log/journal state=directory mode=775 group=systemd-journal
+  become: true
+
+- name: add user to systemd-journal group
+  user:
+    name: "{{ user }}"
+    groups: systemd-journal
+    append: true
+  become: true
+
+- name: install service
+  become: yes
+  file:
+    dest: /etc/systemd/system/image-hub-display.service
+    src: /home/{{ user }}/image-hub/image-hub-display.service
+    state: link
+    owner: root
+
+- name: enable service
+  become: yes
+  systemd:
+    name: image-hub-display
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  notify: restart-service

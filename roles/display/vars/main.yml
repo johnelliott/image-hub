@@ -1,0 +1,5 @@
+---
+user: pi
+image_hub_app_version: master
+image_hub_app_path: /home/{{ user }}/image-hub
+github_key: /home/{{ user }}/.ssh/github_rsa
