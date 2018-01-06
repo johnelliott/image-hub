@@ -22,7 +22,7 @@
   copy: src=~/.ssh/raspi-deploy.pub dest=~/.ssh/ mode=600
 
 - name: add ssh config
-  copy: src=./ssh-config.txt dest=~/.ssh/config
+  copy: src=ssh-config.txt dest=~/.ssh/config
 
 # what is mode here??
 - name: create media dir
@@ -52,7 +52,7 @@
     force: true
 
 - name: copy image-hub environment configuration
-  copy: src=./image-hub.env dest={{ image_hub_app_path }}/.env
+  copy: src=image-hub.env dest={{ image_hub_app_path }}/.env
 
 - name: build app
   shell: . $HOME/.nvm/nvm.sh && npm install && npm run build
