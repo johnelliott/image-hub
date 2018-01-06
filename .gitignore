@@ -13,3 +13,4 @@ media
 scrap-paper/
 node_modules
 wpa_supplicant.conf
+extra-vars.json
