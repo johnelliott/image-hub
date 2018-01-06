@@ -2,7 +2,7 @@ const debug = require('debug')('hub:display')
 const HOSTNAME = require('os').hostname()
 const Oled = require('oled-ssd1306-i2c') // needs https://github.com/jaimehrubiks/oled_ssd1306_i2c/ master with setTimeout fix
 const font = require('oled-font-5x7')
-const commands = require('./commands.js')
+const commands = require('./lib/commands.js')
 
 const oled = new Oled({
   width: 128,
