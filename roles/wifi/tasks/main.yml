@@ -34,15 +34,6 @@
     group: root
     mode: 0644
 
-## TODO make this a handler
-#- name: restart dnsmasq
-#  become: yes
-#  systemd:
-#    name: dnsmasq
-#    enabled: yes
-#    state: restarted
-#    daemon_reload: yes
-
 - name: hostapd config
   become: yes
   template:
@@ -52,10 +43,14 @@
     group: netdev
     mode: 0664
 
-# TODO
-#Edit /etc/sysctl.conf and uncomment this line:
-#net.ipv4.ip_forward=1
-#
+- name: ipv4 forwarding
+  become: yes
+  lineinfile:
+    path: /etc/sysctl.conf
+    insertafter: '#net.ipv4.ip_forward=1'
+    line: 'net.ipv4.ip_forward=1'
+    state: present
+
 - name: iptables config
   become: yes
   copy:
@@ -72,6 +67,22 @@
     insertbefore: '^exit 0$'
     line: 'iptables-restore < /etc/iptables.ipv4.nat'
     state: present
+
+- name: enable dnsmasq
+  become: yes
+  systemd:
+    name: dnsmasq
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+- name: enable hostapd
+  become: yes
+  systemd:
+    name: hostapd
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
 
 ## TODO restart
 #- name: Restart server
