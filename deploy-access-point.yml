@@ -1,0 +1,5 @@
+---
+- hosts: ap-hubs
+  roles:
+  - base
+  - wifi
