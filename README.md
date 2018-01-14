@@ -78,12 +78,21 @@ inventory=inventory.ini
 ```
 ### inventory.ini example
 located in project directory
+this has the channel and psk variables set for specified hosts
 ```conf
 [hubs]
 hub1sshhost
 hub2sshhostwithdisplay
+
 [display-hubs]
 hub2sshhostwithdisplay
+
+[ap-hubs]
+hub1sshhost channel=7
+hub2sshhostwithdisplay channel=6
+
+[ap-hubs:vars]
+psk=mywifipassword
 ```
 ### wpa_supplicant.conf example
 located in `this_project_directory/roles/base/files/wpa_supplicant.conf`
