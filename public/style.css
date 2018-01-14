@@ -148,11 +148,22 @@ a {
 .lightbox__menu {
   display: flex;
   width: 100%;
-  padding: 0.75em;
+  height: 80px;
+  padding: 0 0.75em;
   justify-content: space-between;
 }
 .lightbox__menu--centered {
   justify-content: space-around;
+}
+.lightbox__text {
+  height: 100%;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  padding: 1em;
+  min-width: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .lightbox__buttons {
   display: flex;
@@ -163,12 +174,7 @@ a {
   bottom: 10%;
 }
 .lightbox__tap-area {
-  width: 37%;
-}
-.lightbox__text {
-  margin: 11px;
-  font-size: 10px;
-  letter-spacing: 0.02em;
+  width: 50%;
 }
 .lightbox__slide {
   position: relative;
