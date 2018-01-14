@@ -14,7 +14,7 @@
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
     "build": "npm run bundle && npm run uglify",
     "bundle": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js",
-    "deploy": "ansible-playbook deploy.yml --extra-vars=@extra-vars.json",
+    "deploy": "ansible-playbook deploy.yml",
     "wifi": "ansible-playbook deploy-access-point.yml",
     "ping": "ansible -m ping hubs",
     "watch": "nodemon --ignore ./dist --exec npm run build",

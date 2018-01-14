@@ -35,7 +35,7 @@
     version: "{{ image_hub_app_version }}"
     accept_hostkey: yes
     key_file: "{{ github_key }}"
-    force: false
+    force: true
 
 - name: create systemd journal dir
   file: path=/var/log/journal state=directory mode=775 group=systemd-journal

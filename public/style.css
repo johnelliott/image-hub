@@ -15,6 +15,8 @@ body {
     "Segoe UI Symbol";
   color: #353535;
   background: rgb(252, 252, 252);
+}
+body, .lightbox {
   padding-bottom: 62px;
 }
 body > img {
