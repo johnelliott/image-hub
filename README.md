@@ -54,7 +54,7 @@ turn off server rendering for debugging
 - `systemctl status image-hub-*.service`
 
 ## hardware setup
-- get a raspberry pi 3 with a large enpugh SD card to keep lots of JPEGS on (32gb+)
+- get a raspberry pi 3 with a large enough SD card to keep lots of JPEGS on (32gb+)
 - install Raspbian Stretch lite or Stretch and expand the filesystem, set locales etc.
 - set up the raspi with ssh key access i.e. `$ ssh mypi` lets you run commands via ssh
 - connect some Raspberry Pis with ssh access via their ssh host name on your network
@@ -66,7 +66,6 @@ turn off server rendering for debugging
 - create create ansible config file for deploys
 - create create ansible inventory file for deploys
 - create wpa_supplicant.conf
-- create extra-vars.json
 - put `~/.ssh/raspi-deploy` key in place that works to get this repository from github
 - npm run deploy
 
@@ -110,13 +109,5 @@ network={
 	psk=wpa_passphrase_result0000000000000000000000000000000000000000000
 	key_mgmt=WPA-PSK
 	priority=99
-}
-```
-### extra-vars.json example
-located in project directory
-```json
-{
-  "ssid": "image-hub-access-point",
-  "psk": "12345"
 }
 ```
