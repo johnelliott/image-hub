@@ -10,7 +10,8 @@ then
   echo 'Need an ssh host as $1'
   exit 0
 fi
-report="access-log_$1_$(date +%Y-%m-%d_%H.%M.%S).html"
+d=$(date +%Y-%m-%d_%H.%M.%S)
+report="access-log_$1_$d.html"
 echo creating log $report
-ssh $1 'zcat /var/log/nginx/access.log.*.gz && cat /var/log/nginx/access.log' | $goaccess - -a --html-report-title="$1 Nginx Stats" -o $report
+ssh $1 'zcat /var/log/nginx/access.log.*.gz && cat /var/log/nginx/access.log' | $goaccess - -a --html-report-title="Nginx Stats $1" -o $report
 open $report
