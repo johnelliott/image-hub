@@ -3,39 +3,64 @@
   "lang": "en",
   "name": "Image Hub",
   "short_name": "Image Hub",
-  "description": "Image launch pad 📷🚀📲",
+  "description": "launch pad for your camera",
   "scope": "/",
   "display": "minimal-ui",
   "orientation": "any",
   "start_url": "/",
-  "theme_color": "#81E7EB",
+  "theme_color": "#353535",
   "related_applications": [],
   "prefer_related_applications": false,
-  "background_color": "#E8E9ED",
+  "background_color": "rgb(252, 252, 252)",
   "icons": [
     {
-      "src": "images/icon-144x144.png",
-      "sizes": "144x144",
+      "src": "/icon-180x180.png",
+      "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "images/icon-192x192.png",
+      "src": "/icon-167x167.png",
+      "sizes": "167x167",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-160x160.png",
+      "sizes": "160x160",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-80x80.png",
+      "sizes": "80x80",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "images/icon-256x256.png",
-      "sizes": "256x256",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-384x384.png",
+      "src": "/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png"
     },
     {
-      "src": "images/icon-512x512.png",
-      "sizes": "512x512",
+      "src": "/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
       "type": "image/png"
     }
   ]
