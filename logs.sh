@@ -12,5 +12,5 @@ then
 fi
 report="access-log_$1_$(date +%Y-%m-%d_%H.%M.%S).html"
 echo creating log $report
-ssh $1 'zcat /var/log/nginx/access.log.*.gz && cat /var/log/nginx/access.log' | goaccess - -a --html-report-title="$1 Nginx Stats" -o $report
+ssh $1 'zcat /var/log/nginx/access.log.*.gz && cat /var/log/nginx/access.log' | $goaccess - -a --html-report-title="$1 Nginx Stats" -o $report
 open $report
