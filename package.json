@@ -9,7 +9,7 @@
     "service:restart": "sudo systemctl restart image-hub-etl image-hub-www",
     "service:stop": "sudo systemctl stop image-hub-www.service && sudo systemctl stop image-hub-etl.service",
     "service:start": "sudo systemctl start image-hub-www.service && sudo systemctl start image-hub-etl.service",
-    "service:logs": "journalctl -u nginx -u image-hub-etl -u image-hub-www",
+    "service:logs": "journalctl -u nginx -u image-hub-*.service",
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
     "build": "npm run bundle && npm run uglify",
