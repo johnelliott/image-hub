@@ -3,6 +3,7 @@
 # Executables
 rsync="/usr/bin/rsync"
 command -v $rsync >/dev/null 2>&1 || { echo >&2 "I require $rsync but it's not installed"; exit 1; }
+# TODO other commands like ls, lsusb, mount, etc
 
 CARD_DEV='sda1'
 CARD_MOUNT_POINT='/media/card'
@@ -16,23 +17,23 @@ echo heartbeat
 
 # Wait for a USB SD reader (ID 8564:4000 Transcend Information, Inc. RDF8)
 # Wait for a USB SD reader (ID 05e3:0749 Genesys Logic, Inc.)
+echo wait reader
 while [ -z "$(lsusb -d 8564:4000 )$(lsusb -d 05e3:0749)" ]
 do
-  echo wait reader
   sleep 1
 done
+echo wait card
 
 # Handle cards as long as the reader is plugged in
-# 05e3:0749 - ugreen tail one
-# 8564:4000 - Transcend one
 while [ -n "$(lsusb -d 8564:4000 )$(lsusb -d 05e3:0749)" ]
 do
   if [ -n "$(ls /dev/* | grep $CARD_DEV | cut -d"/" -f3)" ]
   then
     echo found card
-    mount /dev/$CARD_DEV $CARD_MOUNT_POINT
-    # Log the output of the lsblk command for troubleshooting
-    sudo lsblk > lsblk.log
+    if [ -z "$(ls /media/card)" ]
+    then
+      mount /dev/$CARD_DEV $CARD_MOUNT_POINT
+    fi
     echo mounted card
 
     echo running tasks...
@@ -63,11 +64,8 @@ do
     echo card removed
 
   fi
-  echo wait card
   sleep 1
 done
-
 # reboot once the reader is ejected
-echo reader removed
-echo rebooting
+echo shutting down
 sudo shutdown -h now

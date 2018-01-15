@@ -129,9 +129,20 @@
     daemon_reload: yes
   notify: restart www
 
-# sd card watch script
-- name: cron job
-  cron:
-    name: "Card loop on reboot"
-    special_time: reboot
-    job: "sudo {{ image_hub_app_path }}/rsync-loop.sh > /home/{{ user }}/rsync-loop.log"
+# card service
+- name: install card
+  become: yes
+  file:
+    dest: /etc/systemd/system/image-hub-card.service
+    src: /home/{{ user }}/image-hub/image-hub-card.service
+    state: link
+    owner: root
+
+- name: enable card
+  become: yes
+  systemd:
+    name: image-hub-card
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  notify: restart card

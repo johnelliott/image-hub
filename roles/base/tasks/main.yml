@@ -18,11 +18,6 @@
     url: https://raw.githubusercontent.com/johnelliott/dotfiles/master/.vimrc.min
     dest: ~/.vimrc
 
-- name: cron email
-  cronvar:
-    name: EMAIL
-    value: "{{ cron_email }}"
-
 - name: wpa_supplicant
   become: yes
   copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf
