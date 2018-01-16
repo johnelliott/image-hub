@@ -6,7 +6,7 @@ const express = require('express')
 const multer = require('multer')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
-const matt = require('./lib/treatments/iw/matt-story.js')
+const treatments = require('./lib/treatments/index.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const sharp = require('sharp')
 const rimraf = require('rimraf')
@@ -27,6 +27,8 @@ const STORIES = 'stories'
 const SMALL_PATH = path.join(MEDIA_PATH, SMALL)
 const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
+
+const story = treatments[process.env.STORY_TREATMENT] || treatments.story
 
 const SIZE = 1024
 debug('SMALL SIZE', SIZE)
@@ -143,7 +145,7 @@ app.get('/stories/:image', function (req, res, next) {
   const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
   const imageMattPath = path.join(STORIES_PATH, req.params.image)
   debug('matt path', imageMattPath)
-  return matt(sourceImagePath, imageMattPath).then(() => {
+  return story(sourceImagePath, imageMattPath).then(() => {
     debug('done creating image')
     next()
   })
