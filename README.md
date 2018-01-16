@@ -28,12 +28,13 @@ media
 ### .env example
 place a file named `.env` in the project directory:
 ```ini
-EXIFTOOL_PATH=/bin/exiftool
-MEDIA_PATH=/media
-HOST=localhost
-PORT=3000
-OPTIMISTIC_SMALL=false
 DISABLE_SERVER_RENDER=false
+EXIFTOOL_PATH=/bin/exiftool
+HOST=localhost
+MEDIA_PATH=/media
+OPTIMISTIC_SMALL=false
+PORT=3000
+STORY_TREATMENT=story
 ```
 
 ## run locally
@@ -48,6 +49,8 @@ DISABLE_SERVER_RENDER=false
 Optionally create small size crops on disk for images created within 10 seconds of the requested image
 #### SEVER_RENDER_OFF=true
 turn off server rendering for debugging
+#### STORY_TREATMENT=story
+set the visual treatment for story button output, see `lib/treatments/index.js` for the list
 
 ## logging the www and etl linux systemd services
 - `journalctl -x -e --unit image-hub*.service`
