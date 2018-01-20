@@ -258,7 +258,7 @@ app.get('/', function (req, res, next) {
 
 app.get('/view/:image', function (req, res, next) {
   debug('hit view route for %s', req.params.image)
-  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC`, (err, result) => {
+  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC LIMIT 36`, (err, result) => {
     if (err) {
       next(err)
     }
