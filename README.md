@@ -52,9 +52,14 @@ turn off server rendering for debugging
 #### STORY_TREATMENT=story
 set the visual treatment for story button output, see `lib/treatments/index.js` for the list
 
-## logging the www and etl linux systemd services
+## logging the www and etl linux systemd services on the pi
 - `journalctl -x -e --unit image-hub*.service`
 - `systemctl status image-hub-*.service`
+## remote logging
+- `ssh hub1sshhost 'journalctl -u nginx.service -o cat --no-pager -f --no-tail' |goaccess -`
+- `./www-logs.sh hub1sshhost` for node app access logs in journal
+- `./nginx-logs.sh hub1sshhost` for nginx access logs in journal
+- `./logs.sh hub1sshhost` for older logs
 
 ## hardware setup
 - get a raspberry pi 3 with a large enough SD card to keep lots of JPEGS on (32gb+)
