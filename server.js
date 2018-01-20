@@ -179,13 +179,8 @@ app.get('/small/:image', function (req, res, next) {
 app.use('/stories/', express.static(STORIES_PATH))
 app.use('/small/', express.static(SMALL_PATH))
 app.use('/storage/', express.static(STORAGE_PATH))
-
-// This is just for style.css
-app.use('/', express.static(path.join(__dirname, 'views')))
-// This is just for bundle.js
-app.use('/', express.static(path.join(__dirname, 'dist')))
-app.use('/', express.static(path.join(__dirname, 'public')))
-
+app.use(express.static(path.join(__dirname, 'dist')))
+app.use(express.static(path.join(__dirname, 'public')))
 /**
  * CHOO ROUTE
  */
