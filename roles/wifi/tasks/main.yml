@@ -10,8 +10,8 @@
 
 - name: dhcpcd config
   become: yes
-  copy:
-    src: dhcpcd.conf
+  template:
+    src: dhcpcd.conf.j2
     dest: /etc/dhcpcd.conf
     owner: root
     group: netdev
