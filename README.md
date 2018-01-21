@@ -102,7 +102,7 @@ hub2sshhostwithdisplay channel=6
 psk=mywifipassword
 ```
 ### wpa_supplicant.conf example
-located in `this_project_directory/roles/base/files/wpa_supplicant.conf`
+located in `this_project_directory/roles/wifi/files/wpa_supplicant.conf`
 ```
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1

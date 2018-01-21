@@ -17,9 +17,3 @@
   get_url:
     url: https://raw.githubusercontent.com/johnelliott/dotfiles/master/.vimrc.min
     dest: ~/.vimrc
-
-- name: wpa_supplicant
-  become: yes
-  copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf
-  # TODO restart wpa supplicant and services e.g. wpa_cli -i wlan0 reconfigure
-  # notify: reload-wifi

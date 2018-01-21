@@ -8,6 +8,10 @@
     - hostapd
     - dnsmasq
 
+- name: wpa_supplicant
+  become: yes
+  copy: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant-wlan1.conf
+
 - name: dhcpcd config
   become: yes
   template:
