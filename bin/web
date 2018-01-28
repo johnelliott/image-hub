@@ -4,16 +4,16 @@
  * Module dependencies.
  */
 
-const app = require('../server')
+const app = require('../web')
 
-const debug = require('debug')('hub:www')
+const debug = require('debug')('hub-aws:web')
 const http = require('http')
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.HUB_PORT || '3000')
+const port = normalizePort(process.env.WEB_PORT || '3001')
 app.set('port', port)
 
 /**
