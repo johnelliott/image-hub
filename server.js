@@ -7,7 +7,7 @@ const multer = require('multer')
 const sharp = require('sharp')
 const rimraf = require('rimraf')
 const sqlite3 = require('sqlite3').verbose()
-const { createImages } = require('./lib/schema.js')
+const schema = require('./lib/schema.js')
 const treatments = require('./lib/treatments/index.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 const { getImageUrl, uploadImage } = require('./lib/cloudinary.js')
@@ -40,7 +40,7 @@ const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME 
     return debug('db open error', err)
   }
   debug('db open')
-  return db.run(createImages, (err, result) => {
+  return db.run(schema, (err, result) => {
     if (err && err.message.match(/table image already exists/)) {
       debug('image table exists')
     } else if (err) {
