@@ -51,6 +51,8 @@ const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME 
 
 /**
  * Resize small images to disk
+ * from: full pat to image
+ * to: full pat to image
  */
 function smallResize (from, to) {
   return sharp(from)
@@ -233,9 +235,13 @@ app.get('/share/:image', function (req, res, next) {
           debug('rendering application/json')
           res.json({ url })
         },
+        'text/html': () => {
+          // log the request and respond with 406
+          res.redirect(url)
+        },
         'default': () => {
           // log the request and respond with 406
-          res.status(406).send('Not Acceptable')
+          res.redirect(url)
         }
       })
     })

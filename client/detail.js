@@ -37,9 +37,10 @@ module.exports = function detail (state, emit) {
         </div>
         </div>
         <div class="lightbox__menu">
+          <a class="lightbox__text" alt="full size" href="/storage/${currentImage.name}">4K px</a>
+          <a class="lightbox__text" alt="www link" href="/share/${currentImage.name}">www link</a>
           <a class="lightbox__text" alt="instagram story" href="/stories/${currentImage.name}">ig-story</a>
-          <a class="lightbox__text" alt="full size" href="/storage/${currentImage.name}">100%</a>
-          <a class="lightbox__text" alt="web size" href="/small/${currentImage.name}">web size</a>
+          <a class="lightbox__text" alt="web size" href="/small/${currentImage.name}">1024 px</a>
           <a class="lightbox__text" alt="home" href="/">close</a>
         </div>
       </div>
