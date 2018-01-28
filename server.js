@@ -10,6 +10,7 @@ const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
 const treatments = require('./lib/treatments/index.js')
 const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
+const { getImageUrl, uploadImage } = require('./lib/cloudinary.js')
 
 const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
 debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
@@ -58,6 +59,35 @@ function smallResize (from, to) {
     .rotate()
     .withoutEnlargement()
     .toFile(to)
+}
+
+/**
+ * Get image from database given fileName
+ */
+function getImage (fileName) {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT * FROM image WHERE file_name = '${fileName}'`, (err, result) => {
+      if (err) {
+        debug(err)
+        reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
+function updatePublicId (fileName, publicId) {
+  // update image set public_id = 'bs5q3pxvcspwcq00i3e8' where file_name = 'L1004741.JPG'
+  const query = `UPDATE image SET public_id = '${publicId}' WHERE file_name = '${fileName}'`
+  debug('query', query)
+  return new Promise((resolve, reject) => {
+    return db.all(query, (err, result) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(result)
+    })
+  })
 }
 
 /**
@@ -176,6 +206,46 @@ app.get('/small/:image', function (req, res, next) {
       }
     })
 })
+
+app.get('/share/:image', function (req, res, next) {
+  return getImage(req.params.image)
+    .then(data => {
+      if (data.public_id) {
+        debug('local publicId')
+        return getImageUrl(data.public_id)
+      }
+      // Upload and return url
+      return uploadImage(data.file_name)
+        .then(cloudinaryResponse => {
+          // save public id
+          updatePublicId(data.file_name, cloudinaryResponse.public_id)
+          // return share link immediately
+          return getImageUrl(cloudinaryResponse.public_id)
+        })
+    })
+    .then(url => {
+      return res.format({
+        'text': () => {
+          debug('rendering application/json')
+          res.send(url)
+        },
+        'application/json': () => {
+          debug('rendering application/json')
+          res.json({ url })
+        },
+        'default': () => {
+          // log the request and respond with 406
+          res.status(406).send('Not Acceptable')
+        }
+      })
+    })
+    .catch(err => {
+      debug('error getting share image', err)
+      res.status(424)
+      next(err)
+    })
+})
+
 app.use('/stories/', express.static(STORIES_PATH))
 app.use('/small/', express.static(SMALL_PATH))
 app.use('/storage/', express.static(STORAGE_PATH))
@@ -374,11 +444,13 @@ app.use(function (req, res, next) {
 // Development error handler, will print stacktrace
 app.use(function (err, req, res, next) {
   debug('dev error handler', err)
-  res.status(err.status || 500)
+  if (!res.statusCode) {
+    res.status(500)
+  }
   res.render('error', {
-    status: err.statusCode,
+    status: res.statusCode,
     statusText: err.message,
-    err
+    stack: err.stack
   })
 })
 
