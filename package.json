@@ -32,7 +32,7 @@
   "license": "",
   "dependencies": {
     "browserify": "^14.5.0",
-    "choo": "^6.6.0",
+    "choo": "^6.7.0",
     "debug": "^3.1.0",
     "dotenv": "^4.0.0",
     "ecstatic": "^3.0.0",
