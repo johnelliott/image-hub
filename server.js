@@ -133,7 +133,7 @@ function clearDB () {
   })
 }
 
-var app = express()
+const app = express()
 app.set('env', process.env.NODE_ENV)
 const morganLogPreset = app.get('env') === 'development' ? 'dev' : 'combined'
 app.use(morgan(morganLogPreset))
