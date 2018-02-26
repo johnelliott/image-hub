@@ -3,6 +3,7 @@
 .editorconfig
 .env
 *.ini
+*.html
 .npmrc
 .nvmrc
 data
