@@ -47,8 +47,8 @@ services.then(servicesResult => {
         const [ssid, ip, cpu] = results
         const ssids = ssid.trim().split('\n')
         const ips = String(ip.trim().split(' ').reverse())
-        line(0, `wlan0 ${ssids[0]}`)
-        line(8, `wlan1 ${ssids[1]}`)
+        line(0, `ssid ${ssids[0]}`)
+        line(8, `ssid ${ssids[1]}`)
         line(16, ips)
         line(25, `${cpu} avg ${time}`)
         updateDisplay()
