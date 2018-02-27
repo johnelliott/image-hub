@@ -1,0 +1,4 @@
+---
+- hosts: cloud-servers
+  roles:
+  - www-wifi-page

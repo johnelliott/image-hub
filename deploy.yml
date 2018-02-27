@@ -14,3 +14,7 @@
     node_version: v8.9.4
   roles:
   - display
+
+- hosts: cloud-servers
+  roles:
+  - www-wifi-page

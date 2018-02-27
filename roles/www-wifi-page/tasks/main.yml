@@ -1,0 +1,35 @@
+---
+- name: install apt packages
+  become: true
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600 state=present
+  with_items:
+    - libssl-dev
+    - nginx
+
+- name: nginx site files
+  copy:
+    src: "{{ local_wifi_page_path }}/"
+    dest: /var/www/image-hub-wifi/
+    owner: root
+    #local_follow: yes
+
+- name: nginx site install
+  become: yes
+  template:
+    src: image-hub-wifi.nginx.conf.j2
+    dest: /etc/nginx/sites-available/image-hub-wifi.nginx.conf
+    owner: root
+
+- name: nginx site enable
+  become: yes
+  file:
+    src: /etc/nginx/sites-available/image-hub-wifi.nginx.conf
+    dest: /etc/nginx/sites-enabled/image-hub-wifi.nginx.conf
+    state: link
+    owner: root
+
+- name: nginx reload
+  become: yes
+  shell: /usr/sbin/nginx -s reload
+  args:
+    executable: /bin/bash
