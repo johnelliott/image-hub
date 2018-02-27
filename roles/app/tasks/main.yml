@@ -71,7 +71,16 @@
     append: true
   become: true
 
-# nginx static server
+# Nginx static server
+- name: copy SSL cert fullchain
+  copy:
+    src: fullchain.pem
+    dest: "{{ cert_fullchain_path }}"
+- name: copy SSL cert privkey
+  copy:
+    src: privkey.pem
+    dest: "{{ cert_privkey_path }}"
+
 # TODO symlink nginx config symlink
 - name: nginx prepare
   become: yes
@@ -79,11 +88,18 @@
     dest: /etc/nginx/sites-enabled/default
     state: absent
 
-- name: nginx install
+- name: nginx site install
+  become: yes
+  template:
+    src: image-hub.nginx.conf.j2
+    dest: /etc/nginx/sites-available/image-hub.nginx.conf
+    owner: root
+
+- name: nginx site enable
   become: yes
   file:
+    src: /etc/nginx/sites-available/image-hub.nginx.conf
     dest: /etc/nginx/sites-enabled/image-hub.nginx.conf
-    src: /home/{{ user }}/image-hub/image-hub.nginx.conf
     state: link
     owner: root
 

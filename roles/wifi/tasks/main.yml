@@ -31,8 +31,8 @@
 
 - name: dnsmasq config
   become: yes
-  copy:
-    src: dnsmasq.conf
+  template:
+    src: dnsmasq.conf.j2
     dest: /etc/dnsmasq.conf
     owner: root
     group: root
