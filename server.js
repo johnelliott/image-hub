@@ -120,7 +120,10 @@ app.get('/stories/:image', function (req, res, next) {
   const imageMattPath = path.join(STORIES_PATH, req.params.image)
   debug('matt path', imageMattPath)
   return story(sourceImagePath, imageMattPath)
-    .then(next)
+    .then(result => {
+      debug('story created', result)
+      next()
+    })
 })
 
 app.get('/thumb/:image', function (req, res, next) {
