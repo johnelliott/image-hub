@@ -40,6 +40,7 @@
     - storage
     - stories
     - small
+    - thumb
 
 # www app server service
 - name: clone app

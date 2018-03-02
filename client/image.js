@@ -7,6 +7,6 @@ module.exports = function image (i, emit) {
     emit('view', i.name)
   }
   return html`<li class="image-thumb">
-    <a class="image-link" alt="small size" onclick=${view} href="/view/${i.name}"><img class="image-link" src="${i.b64i}"/></a>
+    <a class="image-link" alt="small size" onclick=${view} href="/view/${i.name}"><img class="image-link" src="/thumb/${i.name}"/></a>
   </li>`
 }

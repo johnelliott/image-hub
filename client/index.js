@@ -34,7 +34,7 @@ app.use(function (state, emitter) {
       .then(res => res.ok ? res : new Error('wtf'))
       .then(res => res.json())
       .then(json => {
-        debug('fetched images', `${json[0].name}..${json[json.length - 1].name}`)
+        debug('fetched images', `${json[0].name} through ${json[json.length - 1].name}`)
         state.images = [].concat(state.images).concat(json)
         emitter.emit('render')
       })

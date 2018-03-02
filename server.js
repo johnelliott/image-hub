@@ -9,29 +9,26 @@ const rimraf = require('rimraf')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
 const treatments = require('./lib/treatments/index.js')
-const formatBase64 = require('./lib/exiftool-b64-to-web-b64.js')
 
 const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
 debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
-const OPTIMISTIC_SMALL = process.env.OPTIMISTIC_SMALL === 'true'
-debug('OPTIMISTIC_SMALL', OPTIMISTIC_SMALL)
 
 const MEDIA_PATH = process.env.MEDIA_PATH
 if (!MEDIA_PATH) {
-  console.error(new Error('MEDIA_PATH'))
+  console.error(new Error('No MEDIA_PATH'))
   process.exit(1)
 }
 const SMALL = 'small'
+const THUMB = 'thumb'
 const STORAGE = 'storage'
 const STORIES = 'stories'
+
 const SMALL_PATH = path.join(MEDIA_PATH, SMALL)
+const THUMB_PATH = path.join(MEDIA_PATH, THUMB)
 const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
 
 const story = treatments[process.env.STORY_TREATMENT] || treatments.story
-
-const SIZE = 1024
-debug('SMALL SIZE', SIZE)
 
 // Connect to a database file
 const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME || 'cam.db'), (err, result) => {
@@ -51,39 +48,15 @@ const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME 
 /**
  * Resize small images to disk
  */
-function smallResize (from, to) {
+const SIZE = 240
+debug('DEFAULT RESIZE PX', SIZE)
+function resize (from, to, size = SIZE) {
   return sharp(from)
-    .resize(SIZE, SIZE)
+    .resize(size, size)
     .max()
     .rotate()
     .withoutEnlargement()
     .toFile(to)
-}
-
-/**
- * Resize small images to disk for images created within a time range of an image
- * fileName the image at the center of the range
- */
-function generateSmallImages (fileName) {
-  const range = '10 second'
-  db.all(`
-    SELECT file_name
-    FROM (select date_time_created FROM image WHERE file_name = '${fileName}') AS source, image
-    WHERE image.date_time_created BETWEEN datetime(source.date_time_created, '-${range}') AND datetime(source.date_time_created, '+${range}') and image.date_time_created <> source.date_time_created
-  `, (err, result) => {
-    if (err) {
-      debug(err)
-    }
-    debug('found %s photos around that one', result.length)
-
-    // TODO add fs.access test before calling sharp
-    if (result.length > 0) {
-      result.map(i => i.file_name).forEach(i => {
-        debug('optimistic resize %s', i)
-        smallResize(path.join(STORAGE_PATH, i), path.join(SMALL_PATH, i)).catch(debug)
-      })
-    }
-  })
 }
 
 /**
@@ -110,6 +83,7 @@ function rimRafJpgDir (dir) {
 function rimRafMedia () {
   return Promise.all([
     rimRafJpgDir(SMALL_PATH),
+    rimRafJpgDir(THUMB_PATH),
     rimRafJpgDir(STORIES_PATH),
     rimRafJpgDir(STORAGE_PATH)
   ]).then(arr => arr[0])
@@ -145,40 +119,43 @@ app.get('/stories/:image', function (req, res, next) {
   const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
   const imageMattPath = path.join(STORIES_PATH, req.params.image)
   debug('matt path', imageMattPath)
-  return story(sourceImagePath, imageMattPath).then(() => {
-    debug('done creating image')
-    next()
-  })
+  return story(sourceImagePath, imageMattPath)
+    .then(next)
 })
 
-app.get('/small/:image', function (req, res, next) {
+app.get('/thumb/:image', function (req, res, next) {
   debug('image', req.params.image)
   const name = req.params.image
   const sourceImagePath = path.join(STORAGE_PATH, name)
-  const smallImagePath = path.join(SMALL_PATH, name)
-  debug('creating image with sharp', smallImagePath)
-  sharp(sourceImagePath)
-    .resize(SIZE, SIZE)
-    .max()
-    .rotate()
-    .withoutEnlargement()
-    .toFile(smallImagePath)
-    .then(() => {
-      debug('done creating image')
-      next()
-      if (OPTIMISTIC_SMALL) {
-        generateSmallImages(name)
-      }
-    })
+  const thumbImagePath = path.join(THUMB_PATH, name)
+  debug('generate thumb', thumbImagePath)
+  resize(sourceImagePath, thumbImagePath, 240)
+    .then(next)
     .catch(err => {
       if (err.message === 'Input file is missing or of an unsupported image format') {
         res.status(404).end()
       }
     })
 })
+app.get('/small/:image', function (req, res, next) {
+  debug('image', req.params.image)
+  const name = req.params.image
+  const sourceImagePath = path.join(STORAGE_PATH, name)
+  const destinationImagePath = path.join(SMALL_PATH, name)
+  debug('generate preview', sourceImagePath)
+  resize(sourceImagePath, destinationImagePath, 1280)
+    .then(next)
+    .catch(err => {
+      if (err.message === 'Input file is missing or of an unsupported image format') {
+        res.status(404).end()
+      }
+    })
+})
+
 app.use('/stories/', express.static(STORIES_PATH))
 app.use('/small/', express.static(SMALL_PATH))
 app.use('/storage/', express.static(STORAGE_PATH))
+app.use('/thumb/', express.static(THUMB_PATH))
 const staticOptions = { index: false }
 app.use(express.static(path.join(__dirname, 'dist'), staticOptions))
 app.use(express.static(path.join(__dirname, 'public'), staticOptions))
@@ -204,7 +181,7 @@ app.get('/', function (req, res, next) {
   }
 
   db.all(`
-    SELECT file_name, thumbnail, date_time_created
+    SELECT file_name, date_time_created
     ${selectSinceDateTimeClause}
     FROM image
     ${whereClause}
@@ -219,11 +196,7 @@ app.get('/', function (req, res, next) {
     const images = result.map(i => {
       return {
         name: i.file_name,
-        date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
-        fullHref: `/${STORAGE}/${i.file_name}`,
-        smallHref: `/${SMALL_PATH}/${i.file_name}`,
-        igStoryHref: `/${STORIES_PATH}/${i.file_name}`,
-        b64i: formatBase64(i.thumbnail)
+        date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf()
       }
     })
     return res.format({
@@ -254,7 +227,7 @@ app.get('/', function (req, res, next) {
 
 app.get('/view/:image', function (req, res, next) {
   debug('hit view route for %s', req.params.image)
-  db.all(`SELECT file_name, thumbnail, date_time_created FROM image ORDER BY date_time_created DESC LIMIT 36`, (err, result) => {
+  db.all(`SELECT file_name, date_time_created FROM image ORDER BY date_time_created DESC LIMIT 36`, (err, result) => {
     if (err) {
       next(err)
     }
@@ -262,11 +235,7 @@ app.get('/view/:image', function (req, res, next) {
     const images = result.map(i => {
       return {
         name: i.file_name,
-        date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf(),
-        fullHref: `/${STORAGE}/${i.file_name}`,
-        smallHref: `/${SMALL}/${i.file_name}`,
-        igStoryHref: `/${STORIES}/${i.file_name}`,
-        b64i: formatBase64(i.thumbnail)
+        date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf()
       }
     })
     return res.format({
@@ -366,7 +335,7 @@ app.use(function (req, res, next) {
       debug('command', res.body.command)
     },
     'default': function () {
-      res.sendStatus(404)
+      res.status(404).end()
     }
   })
 })

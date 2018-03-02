@@ -32,7 +32,6 @@ DISABLE_SERVER_RENDER=false
 EXIFTOOL_PATH=/bin/exiftool
 HOST=localhost
 MEDIA_PATH=/media
-OPTIMISTIC_SMALL=false
 PORT=3000
 STORY_TREATMENT=story
 ```
@@ -45,8 +44,6 @@ STORY_TREATMENT=story
 - load up `localhost:3000/all` (all ignores image create dates) to see the server loads
 
 ### server.js feature flags
-#### OPTIMISTIC_SMALL=true
-Optionally create small size crops on disk for images created within 10 seconds of the requested image
 #### SEVER_RENDER_OFF=true
 turn off server rendering for debugging
 #### STORY_TREATMENT=story
