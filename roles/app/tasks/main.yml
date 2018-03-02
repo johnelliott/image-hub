@@ -113,10 +113,9 @@
 # etl service
 - name: install etl
   become: yes
-  file:
+  template:
+    src: image-hub-etl.service.j2
     dest: /etc/systemd/system/image-hub-etl.service
-    src: /home/{{ user }}/image-hub/image-hub-etl.service
-    state: link
     owner: root
 
 - name: enable etl
@@ -131,10 +130,9 @@
 # www service
 - name: install www
   become: yes
-  file:
+  template:
+    src: image-hub-www.service.j2
     dest: /etc/systemd/system/image-hub-www.service
-    src: /home/{{ user }}/image-hub/image-hub-www.service
-    state: link
     owner: root
 
 - name: enable www
@@ -149,9 +147,9 @@
 # card service
 - name: install card
   become: yes
-  file:
+  template:
+    src: image-hub-card.service.j2
     dest: /etc/systemd/system/image-hub-card.service
-    src: /home/{{ user }}/image-hub/image-hub-card.service
     state: link
     owner: root
 

@@ -50,10 +50,9 @@
 
 - name: install service
   become: yes
-  file:
+  template:
+    src: image-hub-display.service.j2
     dest: /etc/systemd/system/image-hub-display.service
-    src: /home/{{ user }}/image-hub/image-hub-display.service
-    state: link
     owner: root
 
 - name: enable service
