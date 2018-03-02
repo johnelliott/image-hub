@@ -285,6 +285,7 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
     all: () => Promise.all([clearDB(), rimRafMedia()]).then(arr => 'deleted all'),
     db: clearDB,
     small: () => rimRafJpgDir(SMALL_PATH),
+    thumb: () => rimRafJpgDir(THUMB_PATH),
     stories: () => rimRafJpgDir(STORIES_PATH),
     storage: () => rimRafJpgDir(STORAGE_PATH),
     media: rimRafMedia
