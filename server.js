@@ -179,8 +179,9 @@ app.get('/small/:image', function (req, res, next) {
 app.use('/stories/', express.static(STORIES_PATH))
 app.use('/small/', express.static(SMALL_PATH))
 app.use('/storage/', express.static(STORAGE_PATH))
-app.use(express.static(path.join(__dirname, 'dist')))
-app.use(express.static(path.join(__dirname, 'public')))
+const staticOptions = { index: false }
+app.use(express.static(path.join(__dirname, 'dist'), staticOptions))
+app.use(express.static(path.join(__dirname, 'public'), staticOptions))
 /**
  * CHOO ROUTE
  */
