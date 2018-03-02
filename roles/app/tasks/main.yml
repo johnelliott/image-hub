@@ -103,12 +103,7 @@
     dest: /etc/nginx/sites-enabled/image-hub.nginx.conf
     state: link
     owner: root
-
-- name: nginx reload
-  become: yes
-  shell: /usr/sbin/nginx -s reload
-  args:
-    executable: /bin/bash
+  notify: nginx reload
 
 # etl service
 - name: install etl
@@ -147,10 +142,9 @@
 # card service
 - name: install card
   become: yes
-  template:
-    src: image-hub-card.service.j2
+  copy:
+    src: ./image-hub-card.service
     dest: /etc/systemd/system/image-hub-card.service
-    state: link
     owner: root
 
 - name: enable card

@@ -22,3 +22,9 @@
     enabled: yes
     state: restarted
     daemon_reload: yes
+
+- name: nginx reload
+  become: yes
+  shell: /usr/sbin/nginx -s reload
+  args:
+    executable: /bin/bash
