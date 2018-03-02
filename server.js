@@ -130,7 +130,10 @@ app.get('/thumb/:image', function (req, res, next) {
   const thumbImagePath = path.join(THUMB_PATH, name)
   debug('generate thumb', thumbImagePath)
   resize(sourceImagePath, thumbImagePath, 240)
-    .then(next)
+    .then(result => {
+      debug('thumb resize', result);
+      next()
+    })
     .catch(err => {
       if (err.message === 'Input file is missing or of an unsupported image format') {
         res.status(404).end()
@@ -144,7 +147,10 @@ app.get('/small/:image', function (req, res, next) {
   const destinationImagePath = path.join(SMALL_PATH, name)
   debug('generate preview', sourceImagePath)
   resize(sourceImagePath, destinationImagePath, 1280)
-    .then(next)
+    .then(result => {
+      debug('small resize', result);
+      next()
+    })
     .catch(err => {
       if (err.message === 'Input file is missing or of an unsupported image format') {
         res.status(404).end()
