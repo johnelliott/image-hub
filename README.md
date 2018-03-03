@@ -20,6 +20,7 @@ The display isn't covered here.
 this is the directory structure on the root of the pi filesystem
 ```
 media
+├── thumbs
 ├── small
 ├── storage
 └── stories
@@ -49,14 +50,11 @@ turn off server rendering for debugging
 #### STORY_TREATMENT=story
 set the visual treatment for story button output, see `lib/treatments/index.js` for the list
 
-## logging the www and etl linux systemd services on the pi
-- `journalctl -x -e --unit image-hub*.service`
-- `systemctl status image-hub-*.service`
 ## remote logging
-- `ssh hub1sshhost 'journalctl -u nginx.service -o cat --no-pager -f --no-tail' |goaccess -`
-- `./www-logs.sh hub1sshhost` for node app access logs in journal
-- `./nginx-logs.sh hub1sshhost` for nginx access logs in journal
-- `./logs.sh hub1sshhost` for older logs
+- `./live-logs.sh hub1sshhost` for node app access logs in journal
+- `./pull-nginx-journal-report.sh hub1sshhost` get and view nginx server report for hub1sshhost
+- `./pull-express-journal-report.sh hub1sshhost` get and view express server report for hub1sshhost
+- `./pull-nginx-access-report.sh someotherhost` get and view nginx access.log server report for someotherhost
 
 ## hardware setup
 - get a raspberry pi 3 with a large enough SD card to keep lots of JPEGS on (32gb+)
@@ -97,6 +95,9 @@ hub2sshhostwithdisplay channel=6
 
 [ap-hubs:vars]
 psk=mywifipassword
+cert_domain=mydomain.com
+cert_fullchain_path=/etc/letsencrypt/live/mydomain.com/fullchain.pem
+cert_privkey_path=/etc/letsencrypt/live/mydomain.com/privkey.pem
 ```
 ### wpa_supplicant.conf example
 located in `this_project_directory/roles/wifi/files/wpa_supplicant.conf`
