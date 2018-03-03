@@ -2,6 +2,7 @@ require('dotenv').config()
 const debug = require('debug')('hub:server')
 const morgan = require('morgan')
 const path = require('path')
+const cp = require('child_process')
 const express = require('express')
 const multer = require('multer')
 const sharp = require('sharp')
@@ -29,6 +30,8 @@ const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
 
 const story = treatments[process.env.STORY_TREATMENT] || treatments.story
+
+const rev = cp.execSync('git rev-parse HEAD').toString('utf8').trim()
 
 // Connect to a database file
 const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME || 'cam.db'), (err, result) => {
@@ -109,6 +112,12 @@ function clearDB () {
 
 const app = express()
 app.set('env', process.env.NODE_ENV)
+app.use((req, res, next) => {
+  if (rev) {
+    res.setHeader('X-IH-Revision', rev)
+  }
+  next()
+})
 const morganLogPreset = app.get('env') === 'development' ? 'dev' : 'combined'
 app.use(morgan(morganLogPreset))
 app.set('views', path.join(__dirname, 'views')) // general config
@@ -134,7 +143,7 @@ app.get('/thumb/:image', function (req, res, next) {
   debug('generate thumb', thumbImagePath)
   resize(sourceImagePath, thumbImagePath, 240)
     .then(result => {
-      debug('thumb resize', result);
+      debug('thumb resize', result)
       next()
     })
     .catch(err => {
@@ -151,7 +160,7 @@ app.get('/small/:image', function (req, res, next) {
   debug('generate preview', sourceImagePath)
   resize(sourceImagePath, destinationImagePath, 1280)
     .then(result => {
-      debug('small resize', result);
+      debug('small resize', result)
       next()
     })
     .catch(err => {
