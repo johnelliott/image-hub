@@ -5,12 +5,12 @@ interface=wlan0
 
 domain=/{{ cert_domain }}/192.168.4.1
 server=/{{ cert_domain }}/192.168.4.1
-local=/{{ cert_domain }}/192.168.4.1
+local=/local/
 address=/{{ cert_domain }}/192.168.4.1
-rebind-domain-ok=/{{ cert_domain }}/
 expand-hosts
 local-service
 clear-on-reload
 
 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
-dhcp-option=option:dns-server,192.168.4.1
+dhcp-option=option:router
+dhcp-option=option:dns-server
