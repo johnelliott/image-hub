@@ -10,6 +10,9 @@ const rimraf = require('rimraf')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
 const treatments = require('./lib/treatments/index.js')
+const choo = require('choo')
+const grid = require('./client/grid.js')
+const detail = require('./client/detail.js')
 
 const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
 debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
@@ -123,6 +126,11 @@ app.use(morgan(morganLogPreset))
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
+app.use('/stories/', express.static(STORIES_PATH))
+app.use('/small/', express.static(SMALL_PATH))
+app.use('/storage/', express.static(STORAGE_PATH))
+app.use('/thumb/', express.static(THUMB_PATH))
+
 app.get('/stories/:image', function (req, res, next) {
   debug('image', req.params.image)
   const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
@@ -170,19 +178,12 @@ app.get('/small/:image', function (req, res, next) {
     })
 })
 
-app.use('/stories/', express.static(STORIES_PATH))
-app.use('/small/', express.static(SMALL_PATH))
-app.use('/storage/', express.static(STORAGE_PATH))
-app.use('/thumb/', express.static(THUMB_PATH))
 const staticOptions = { index: false }
 app.use(express.static(path.join(__dirname, 'dist'), staticOptions))
 app.use(express.static(path.join(__dirname, 'public'), staticOptions))
 /**
  * CHOO ROUTE
  */
-const choo = require('choo')
-const grid = require('./client/grid.js')
-const detail = require('./client/detail.js')
 const chooApp = choo()
 chooApp.route('/', grid)
 chooApp.route('/view/:image', detail)

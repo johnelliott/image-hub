@@ -4,7 +4,7 @@
   "description": "LAN JPEG server and transformer",
   "main": "server.js",
   "scripts": {
-    "start": "DEBUG=hub:* NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
+    "start": "NODE_ENV=development node_modules/nodemon/bin/nodemon.js bin/www",
     "service:status": "sudo systemctl status nginx image-hub-*",
     "service:restart": "sudo systemctl restart image-hub-etl image-hub-www",
     "service:stop": "sudo systemctl stop image-hub-www.service && sudo systemctl stop image-hub-etl.service",
@@ -13,7 +13,7 @@
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
     "build": "npm run bundle && npm run uglify",
-    "bundle": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js",
+    "bundle": "browserify -g babelify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js",
     "deploy": "ansible-playbook deploy.yml",
     "shutdown": "ansible hubs -m shell -a 'sudo shutdown -h now'",
     "wifi": "ansible-playbook deploy-access-point.yml",
@@ -24,6 +24,21 @@
     "lint": "standard",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions",
+              "safari >= 10"
+            ]
+          }
+        }
+      ]
+    ]
+  },
   "keywords": [
     "image",
     "local"
@@ -31,10 +46,12 @@
   "author": "John Elliott <johnelliott703@gmail.com> (http://primitivemachine.com/)",
   "license": "",
   "dependencies": {
-    "browserify": "^14.5.0",
+    "babel-cli": "^6.26.0",
+    "babelify": "^8.0.0",
+    "browserify": "^16.1.0",
     "choo": "^6.7.0",
     "debug": "^3.1.0",
-    "dotenv": "^4.0.0",
+    "dotenv": "^5.0.1",
     "ecstatic": "^3.0.0",
     "exorcist": "^1.0.0",
     "express": "^4.16.2",
@@ -50,11 +67,13 @@
     "pug": "^2.0.0-rc.4",
     "recursive-readdir": "^2.2.1",
     "rimraf": "^2.6.2",
-    "sharp": "^0.18.4",
+    "sharp": "^0.19.1",
     "sqlite3": "^3.1.13",
-    "standard": "^10.0.3",
-    "uglify-es": "https://github.com/mishoo/UglifyJS2/archive/harmony-v3.2.2.tar.gz",
+    "standard": "^11.0.0",
+    "uglify-es": "^3.3.9",
     "worker-farm": "^1.5.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1"
+  }
 }
