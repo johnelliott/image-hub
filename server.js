@@ -117,7 +117,7 @@ const app = express()
 app.set('env', process.env.NODE_ENV)
 app.use((req, res, next) => {
   if (rev) {
-    res.setHeader('X-IH-Revision', rev)
+    res.setHeader('X-Image-Hub-Revision', rev)
   }
   next()
 })
@@ -178,9 +178,9 @@ app.get('/small/:image', function (req, res, next) {
     })
 })
 
-const staticOptions = { index: false }
-app.use(express.static(path.join(__dirname, 'dist'), staticOptions))
-app.use(express.static(path.join(__dirname, 'public'), staticOptions))
+const expressStaticOptions = { index: false }
+app.use(express.static(path.join(__dirname, 'dist'), expressStaticOptions))
+app.use(express.static(path.join(__dirname, 'public'), expressStaticOptions))
 /**
  * CHOO ROUTE
  */
