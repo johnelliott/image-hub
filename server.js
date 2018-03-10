@@ -128,14 +128,16 @@ app.use(morgan(morganLogPreset))
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
+const expressStaticOptions = {
+  index: false,
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : '2m'
+}
 // Simulate Nginx reverse-proxy, eliminate re-resizing static assets
 if (INITIAL_STATIC_SERVER) {
-  const initialExpressStaticOptions = {
-    index: false,
-    maxAge: process.env.NODE_ENV === 'production' ? '1d' : '2m',
+  app.use('/', express.static(MEDIA_PATH, {
+    ...expressStaticOptions,
     fallthrough: true
-  }
-  app.use('/', express.static(MEDIA_PATH, initialExpressStaticOptions))
+  }))
 }
 
 app.get('/stories/:image', function (req, res, next) {
@@ -185,9 +187,9 @@ app.get('/small/:image', function (req, res, next) {
     })
 })
 
-const expressStaticOptions = { index: false }
 app.use(express.static(path.join(__dirname, 'dist'), expressStaticOptions))
 app.use(express.static(path.join(__dirname, 'public'), expressStaticOptions))
+app.use(express.static(MEDIA_PATH))
 /**
  * CHOO ROUTE
  */
