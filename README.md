@@ -30,6 +30,7 @@ media
 place a file named `.env` in the project directory:
 ```ini
 DISABLE_SERVER_RENDER=false
+INITIAL_STATIC_SERVER=false
 EXIFTOOL_PATH=/bin/exiftool
 HOST=localhost
 MEDIA_PATH=/media

@@ -13,7 +13,7 @@
     "db:reset": "rm -f cam.db && touch cam.db",
     "db:images": "sqlite3 cam.db 'select full_path from image order by full_path'",
     "build": "npm run bundle && npm run uglify",
-    "bundle": "browserify -g babelify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js",
+    "bundle": "browserify ./client/index.js --debug | exorcist ./dist/bundle.js.map > ./dist/bundle.js",
     "deploy": "ansible-playbook deploy.yml",
     "shutdown": "ansible hubs -m shell -a 'sudo shutdown -h now'",
     "wifi": "ansible-playbook deploy-access-point.yml",
@@ -23,21 +23,6 @@
     "etl": "DEBUG=hub* node_modules/nodemon/bin/nodemon.js etl.js",
     "lint": "standard",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "targets": {
-            "browsers": [
-              "last 2 versions",
-              "safari >= 10"
-            ]
-          }
-        }
-      ]
-    ]
   },
   "keywords": [
     "image",
@@ -70,7 +55,7 @@
     "sharp": "^0.19.1",
     "sqlite3": "^3.1.13",
     "standard": "^11.0.0",
-    "uglify-es": "^3.3.9",
+    "uglify-es": "^3.3.10",
     "worker-farm": "^1.5.2"
   },
   "devDependencies": {
