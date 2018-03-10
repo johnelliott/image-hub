@@ -6,8 +6,7 @@ module.exports = function image (i, emit) {
     debug('view event', e)
     emit('view', i.name)
   }
-  debug('image render')
-  return html`<li class="image-thumb" id="${i.name}">
+  return html`<li class="image-thumb">
     <a class="image-link" alt="small size" onclick=${view} href="/view/${i.name}"><img src="/thumb/${i.name}"/></a>
   </li>`
 }
