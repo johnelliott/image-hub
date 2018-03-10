@@ -15,7 +15,9 @@ const grid = require('./client/grid.js')
 const detail = require('./client/detail.js')
 
 const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
+const INITIAL_STATIC_SERVER = process.env.INITIAL_STATIC_SERVER === 'true'
 debug('DISABLE_SERVER_RENDER', DISABLE_SERVER_RENDER)
+debug('INITIAL_STATIC_SERVER', INITIAL_STATIC_SERVER)
 
 const MEDIA_PATH = process.env.MEDIA_PATH
 if (!MEDIA_PATH) {
@@ -126,10 +128,15 @@ app.use(morgan(morganLogPreset))
 app.set('views', path.join(__dirname, 'views')) // general config
 app.set('view engine', 'pug')
 
-app.use('/stories/', express.static(STORIES_PATH))
-app.use('/small/', express.static(SMALL_PATH))
-app.use('/storage/', express.static(STORAGE_PATH))
-app.use('/thumb/', express.static(THUMB_PATH))
+// Simulate Nginx reverse-proxy, eliminate re-resizing static assets
+if (INITIAL_STATIC_SERVER) {
+  const initialExpressStaticOptions = {
+    index: false,
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : '2m',
+    fallthrough: true
+  }
+  app.use('/', express.static(MEDIA_PATH, initialExpressStaticOptions))
+}
 
 app.get('/stories/:image', function (req, res, next) {
   debug('image', req.params.image)
