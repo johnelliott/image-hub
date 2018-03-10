@@ -4,6 +4,7 @@ const image = require('./image.js')
 
 module.exports = function detail (state, emit) {
   const currentImageIndex = state.images.findIndex(i => i.name === state.params.image)
+  debug('render detail')
   debug('currentImageIndex', currentImageIndex)
   const currentImage = state.images[currentImageIndex]
   /*
