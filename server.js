@@ -8,7 +8,7 @@ const sharp = require('sharp')
 const rimraf = require('rimraf')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
-const treatments = require('./lib/treatments/index.js')
+const story = require('./lib/treatments/story.js')
 const choo = require('choo')
 const grid = require('./client/grid.js')
 const detail = require('./client/detail.js')
@@ -32,8 +32,6 @@ const SMALL_PATH = path.join(MEDIA_PATH, SMALL)
 const THUMB_PATH = path.join(MEDIA_PATH, THUMB)
 const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
-
-const story = treatments[process.env.STORY_TREATMENT] || treatments.story
 
 // Connect to a database file
 const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME || 'cam.db'), (err, result) => {
@@ -151,7 +149,7 @@ app.get('/thumb/:image', function (req, res, next) {
   debug('generate thumb', thumbImagePath)
   resize(sourceImagePath, thumbImagePath, 240)
     .then(result => {
-      debug('thumb resize', result);
+      debug('thumb resize', result)
       next()
     })
     .catch(err => {
@@ -168,7 +166,7 @@ app.get('/small/:image', function (req, res, next) {
   debug('generate preview', sourceImagePath)
   resize(sourceImagePath, destinationImagePath, 1280)
     .then(result => {
-      debug('small resize', result);
+      debug('small resize', result)
       next()
     })
     .catch(err => {
