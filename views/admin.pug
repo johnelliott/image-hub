@@ -1,4 +1,24 @@
 extends html.pug
+block header
+  style(type='text/css').
+    body {
+      margin: 0 2em;
+    }
+    th {
+      text-align: left;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    th, td {
+      padding: 0.4em;
+    }
+    th:first-child, td:first-child {
+      text-align: right;
+    }
+    td a {
+      color: blue;
+    }
 block content
   body
     h1
@@ -29,8 +49,18 @@ block content
       tr
         td small
         td delete small images
-    <form id="form" class="admin" action="/admin" method="post" enctype="multipart/form-data">
-      <input type="text" name="command" >
-      <input type="submit" value="Send">
-    </form>
+      tr
+        td colorname
+        td set ig story background to 
+          a(href='http://www.graphicsmagick.org/color.html') graphicsmagick color name
+      tr
+        td #000000
+        td set ig story background to 
+          a(href='http://www.graphicsmagick.org/color.html') hex color
+          span —e.g. #00FF00
+    p
+      <form id="form" class="admin" action="/admin" method="post" enctype="multipart/form-data">
+        <input type="text" name="command" >
+        <input type="submit" value="Send">
+      </form>
     h3 👁

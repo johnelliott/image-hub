@@ -9,6 +9,7 @@ const rimraf = require('rimraf')
 const sqlite3 = require('sqlite3').verbose()
 const { createImages } = require('./lib/schema.js')
 const story = require('./lib/treatments/story.js')
+const isGmColor = require('./lib/isGmColor')
 const choo = require('choo')
 const grid = require('./client/grid.js')
 const detail = require('./client/detail.js')
@@ -32,6 +33,9 @@ const SMALL_PATH = path.join(MEDIA_PATH, SMALL)
 const THUMB_PATH = path.join(MEDIA_PATH, THUMB)
 const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
+
+// Server state
+let storyColor
 
 // Connect to a database file
 const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME || 'cam.db'), (err, result) => {
@@ -134,7 +138,7 @@ app.get('/stories/:image', function (req, res, next) {
   const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
   const imageMattPath = path.join(STORIES_PATH, req.params.image)
   debug('matt path', imageMattPath)
-  return story(sourceImagePath, imageMattPath)
+  return story(sourceImagePath, imageMattPath, storyColor)
     .then(result => {
       debug('story created', result)
       next()
@@ -299,23 +303,31 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
     media: rimRafMedia
   }
 
-  if (commands[req.body.command]) {
+  let command
+  if (isGmColor(req.body.command)) {
+    storyColor = req.body.command
+    command = Promise.resolve(`ig story color set to ${req.body.command}`)
+  } else if (commands[req.body.command]) {
+    debug('doing command', req.body.command)
     // Do async commmand, then set info after
-    commands[req.body.command]().then(result => {
-      debug('result', result)
-      res.locals.statusText = result
-      res.status(200)
-      next()
-    }).catch(reason => {
-      res.status(406)
-      res.locals.statusText = 'Not acceptable' + reason
-      next()
-    })
+    command = commands[req.body.command]()
   } else {
+    debug('failed command', req.body.command)
     res.status(406)
     res.locals.statusText = 'Not acceptable'
-    next()
+    return next()
   }
+
+  command.then(result => {
+    debug('result', result)
+    res.locals.statusText = result
+    res.status(200)
+    next()
+  }).catch(reason => {
+    res.status(406)
+    res.locals.statusText = 'Not acceptable' + reason
+    next()
+  })
 }, function renderFormResponse (req, res, next) {
   debug('running send middleware')
   return res.format({

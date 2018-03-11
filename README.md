@@ -35,7 +35,6 @@ EXIFTOOL_PATH=/bin/exiftool
 HOST=localhost
 MEDIA_PATH=/media
 PORT=3000
-STORY_TREATMENT=story
 ```
 
 ## run locally
@@ -48,8 +47,8 @@ STORY_TREATMENT=story
 ### server.js feature flags
 #### SEVER_RENDER_OFF=true
 turn off server rendering for debugging
-#### STORY_TREATMENT=story
-set the visual treatment for story button output, see `lib/treatments/index.js` for the list
+#### INITIAL_STATIC_SERVER=true
+turn on a front-controller-style static file server for the media directroy (for emulating nginx sitting in front of the express app)
 
 ## remote logging
 - `./live-logs.sh hub1sshhost` for node app access logs in journal
