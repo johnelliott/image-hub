@@ -303,14 +303,15 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
     media: rimRafMedia
   }
 
-  let command
-  if (isGmColor(req.body.command)) {
-    storyColor = req.body.command
-    command = Promise.resolve(`ig story color set to ${req.body.command}`)
-  } else if (commands[req.body.command]) {
+  const command = req.body.command.toLowerCase()
+  let commandResult
+  if (isGmColor(command)) {
+    storyColor = command
+    commandResult = Promise.resolve(`ig story color set to ${command}`)
+  } else if (commands[command]) {
     debug('doing command', req.body.command)
     // Do async commmand, then set info after
-    command = commands[req.body.command]()
+    commandResult = commands[command]()
   } else {
     debug('failed command', req.body.command)
     res.status(406)
@@ -318,7 +319,7 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
     return next()
   }
 
-  command.then(result => {
+  commandResult.then(result => {
     debug('result', result)
     res.locals.statusText = result
     res.status(200)
