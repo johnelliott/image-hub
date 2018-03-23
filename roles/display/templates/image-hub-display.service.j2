@@ -1,0 +1,13 @@
+[Unit]
+Description=oled screen for image-hub
+After=network.target
+
+[Service]
+WorkingDirectory=/home/pi/image-hub
+Type=simple
+ExecStart=/home/pi/.nvm/versions/node/{{ node_version }}/bin/node /home/pi/image-hub/display.js
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
