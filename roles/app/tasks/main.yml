@@ -72,15 +72,20 @@
     append: true
   become: true
 
+
 # Nginx static server
+- name: create cert dir
+  file: path={{ cert_path }} state=directory owner=root mode=644
 - name: copy SSL cert fullchain
   copy:
     src: fullchain.pem
-    dest: "{{ cert_fullchain_path }}"
+    dest: "{{ cert_path }}"
+  become: true
 - name: copy SSL cert privkey
   copy:
     src: privkey.pem
-    dest: "{{ cert_privkey_path }}"
+    dest: "{{ cert_path }}"
+  become: true
 
 # TODO symlink nginx config symlink
 - name: nginx prepare
