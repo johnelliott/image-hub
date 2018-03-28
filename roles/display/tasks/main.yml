@@ -12,6 +12,15 @@
   lineinfile: path=/etc/modules line=i2c-dev state=present
   become: true
 
+- name: enable i2c boot options
+  lineinfile:
+    path: /boot/config.txt
+    line: dtparam=i2c_arm=on
+    regexp: '#dtparam=i2c_arm=on'
+    insertafter: '^#dtparam=i2c_arm'
+    state: present
+  become: true
+
 - name: unblacklist i2c
   lineinfile:
     path: /etc/modprobe.d/raspi-blacklist.conf
