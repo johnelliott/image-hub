@@ -2,7 +2,7 @@
 - hosts: hubs
   vars:
     nvm_version: v0.33.8
-    node_version: v8.10.0
+    node_version: v8.11.0
   roles:
   - base
   - node
@@ -11,7 +11,7 @@
 - hosts: display-hubs
   vars:
     nvm_version: v0.33.8
-    node_version: v8.10.0
+    node_version: v8.11.0
   roles:
   - display
 
