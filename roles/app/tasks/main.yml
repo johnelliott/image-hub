@@ -75,6 +75,7 @@
 
 # Nginx static server
 - name: create cert dir
+  become: true
   file: path={{ cert_path }} state=directory owner=root mode=644
 - name: copy SSL cert fullchain
   copy:
