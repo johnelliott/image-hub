@@ -96,8 +96,7 @@ hub2sshhostwithdisplay channel=6
 [ap-hubs:vars]
 psk=mywifipassword
 cert_domain=mydomain.com
-cert_fullchain_path=/etc/letsencrypt/live/mydomain.com/fullchain.pem
-cert_privkey_path=/etc/letsencrypt/live/mydomain.com/privkey.pem
+cert_path=/etc/letsencrypt/live/mydomain.com
 ```
 ### wpa_supplicant.conf example
 located in `this_project_directory/roles/wifi/files/wpa_supplicant.conf`
