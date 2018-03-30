@@ -17,3 +17,8 @@
   get_url:
     url: https://raw.githubusercontent.com/johnelliott/dotfiles/master/.vimrc.min
     dest: ~/.vimrc
+
+- name: timezone
+  become: true
+  timezone:
+    name: America/New_York
