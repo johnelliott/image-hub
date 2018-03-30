@@ -2,7 +2,7 @@
 - hosts: display-hubs
   vars:
     nvm_version: v0.33.8
-    node_version: v8.9.4
+    node_version: v8.10.0
   roles:
   - node
   - display
