@@ -1,6 +1,6 @@
 ---
 user: pi
-image_hub_app_version: master
+image_hub_app_version: remove-exif-thumbnails
 image_hub_app_path: /home/{{ user }}/image-hub
 github_key: /home/{{ user }}/.ssh/github_rsa
 node_version: v8.11.0

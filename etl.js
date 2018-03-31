@@ -38,7 +38,7 @@ const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, res
   })
 })
 
-function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }) {
+function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
   debug('Running insert', fileName)
   db.run(
     `INSERT OR REPLACE INTO image (
@@ -46,13 +46,11 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath, thumbnail }
       'file_name',
       'date_time_created',
       'full_path',
-      'thumbnail'
     ) values (
       (SELECT id FROM image WHERE full_path = '${fullPath}'),
       '${fileName}',
       '${dateTimeOriginal}',
-      '${fullPath}',
-      '${thumbnail}'
+      '${fullPath}'
     );`
   )
 }
