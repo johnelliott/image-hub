@@ -45,7 +45,7 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
       'id',
       'file_name',
       'date_time_created',
-      'full_path',
+      'full_path'
     ) values (
       (SELECT id FROM image WHERE full_path = '${fullPath}'),
       '${fileName}',
