@@ -41,8 +41,8 @@ server {
 
 	server_name image-hub {{ cert_domain }} default_hostname;
 
-	ssl_certificate {{ cert_fullchain_path }};
-		ssl_certificate_key {{ cert_privkey_path }};
+	ssl_certificate {{ cert_path }}/fullchain.pem;
+		ssl_certificate_key {{ cert_path }}/privkey.pem;
 		ssl_session_timeout 5m;
 
 	ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
