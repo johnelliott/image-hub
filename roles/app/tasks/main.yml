@@ -56,7 +56,7 @@
   copy: src=image-hub.env dest={{ image_hub_app_path }}/.env
 
 - name: build app
-  shell: . $HOME/.nvm/nvm.sh && npm install && npm run build
+  shell: . $HOME/.nvm/nvm.sh && LZZ_COMPAT=1 npm install && npm run build
   args:
     chdir: "{{ image_hub_app_path }}"
     executable: /bin/bash
