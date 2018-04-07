@@ -3,7 +3,7 @@ const debug = require('debug')('hub:etl')
 const path = require('path')
 const workerFarm = require('worker-farm')
 const watch = require('node-watch')
-const sqlite3 = require('sqlite3').verbose()
+const BetterSqlite3 = require('better-sqlite3')
 const createImages = require('./lib/schema.js').createImages
 
 require('dotenv').config()
@@ -24,23 +24,23 @@ if (!EXIFTOOL_PATH) {
 }
 debug('EXIFTOOL_PATH', EXIFTOOL_PATH)
 
-const db = new sqlite3.cached.Database(path.join(__dirname, 'cam.db'), (err, result) => {
-  if (err) {
-    return debug('db open error', err)
+const db = new BetterSqlite3(path.join(__dirname, 'bcam.db'))
+try {
+  const result = db.prepare(createImages).run()
+  debug('db create result', result)
+} catch (err) {
+  if (err && err.message.match(/table image already exists/)) {
+    debug('image table exists')
+  } else if (err) {
+    debug('db create image table error', err)
+    console.error(err)
+    process.exit(1)
   }
-  debug('db open')
-  return db.run(createImages, (err, result) => {
-    if (err && err.message.match(/table image already exists/)) {
-      debug('image table exists')
-    } else if (err) {
-      return debug('db create iamge table error', err)
-    }
-  })
-})
+}
 
 function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
   debug('Running insert', fileName)
-  db.run(
+  db.prepare(
     `INSERT OR REPLACE INTO image (
       'id',
       'file_name',
@@ -52,7 +52,7 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
       '${dateTimeOriginal}',
       '${fullPath}'
     );`
-  )
+  ).run()
 }
 
 const farmOptions = {
