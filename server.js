@@ -6,7 +6,7 @@ const express = require('express')
 const multer = require('multer')
 const sharp = require('sharp')
 const rimraf = require('rimraf')
-const sqlite3 = require('sqlite3').verbose()
+const Database = require('better-sqlite3')
 const { createImages } = require('./lib/schema.js')
 const story = require('./lib/treatments/story.js')
 const isGmColor = require('./lib/isGmColor')
@@ -38,19 +38,19 @@ const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
 let storyColor
 
 // Connect to a database file
-const db = new sqlite3.cached.Database(path.join(__dirname, process.env.DB_NAME || 'cam.db'), (err, result) => {
-  if (err) {
-    return debug('db open error', err)
+const db = new Database(path.join(__dirname, 'cab.db'))
+try {
+  const result = db.prepare(createImages).run()
+  debug('db create result', result)
+} catch (err) {
+  if (err && err.message.match(/table image already exists/)) {
+    debug('image table exists')
+  } else if (err) {
+    debug('db create image table error', err)
+    console.error(err)
+    process.exit(1)
   }
-  debug('db open')
-  return db.run(createImages, (err, result) => {
-    if (err && err.message.match(/table image already exists/)) {
-      debug('image table exists')
-    } else if (err) {
-      return debug('db create iamge table error', err)
-    }
-  })
-})
+}
 
 /**
  * Resize small images to disk
@@ -100,17 +100,14 @@ function rimRafMedia () {
  */
 function clearDB () {
   debug('running db command')
-  // TODO
   return new Promise((resolve, reject) => {
-    db.run('delete FROM image', (err, result) => {
-      debug(err, result)
-      if (err) {
-        debug(err)
-        return reject(err)
-      }
-      debug('result', result)
-      resolve(result || 'deleted')
-    })
+    try {
+      db.prepare('delete from image').run()
+    } catch (err) {
+      debug(err)
+      return reject(err)
+    }
+    resolve('deleted')
   })
 }
 
@@ -197,24 +194,23 @@ app.get('/', function (req, res, next) {
   let whereClause = ''
   if (since) {
     debug('req.query.since', since)
-    selectSinceDateTimeClause = `, (SELECT date_time_created FROM image WHERE file_name = '${since}') as sinceDateTime`
-    whereClause = 'WHERE date_time_created < sinceDateTime'
+    selectSinceDateTimeClause = `, (select date_time_created from image where file_name = '${since}') as sinceDateTime`
+    whereClause = 'where date_time_created < sinceDateTime'
   }
 
-  db.all(`
-    SELECT file_name, date_time_created
-    ${selectSinceDateTimeClause}
-    FROM image
-    ${whereClause}
-    ORDER BY date_time_created DESC
-    LIMIT 36
-  `, (err, result) => {
-    if (err) {
-      debug(err)
-      next(err)
-    }
-    debug('found %s photos', result.length)
-    const images = result.map(i => {
+  try {
+    const rows = db.prepare(
+      `select file_name, date_time_created
+      ${selectSinceDateTimeClause}
+      from image
+      ${whereClause}
+      order by date_time_created desc
+      limit 36`
+    ).all()
+
+    debug('found %s photos', rows.length)
+    const images = rows.map(i => {
+      debug('image', i)
       return {
         name: i.file_name,
         date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf()
@@ -243,22 +239,24 @@ app.get('/', function (req, res, next) {
         res.status(406).send('Not Acceptable')
       }
     })
-  })
+  } catch (err) {
+    debug(err)
+    next(err)
+  }
 })
 
 app.get('/view/:image', function (req, res, next) {
   debug('hit view route for %s', req.params.image)
-  db.all(`SELECT file_name, date_time_created FROM image ORDER BY date_time_created DESC LIMIT 36`, (err, result) => {
-    if (err) {
-      next(err)
-    }
-    debug('found %s photos', result.length)
-    const images = result.map(i => {
+  try {
+    const rows = db.prepare(`SELECT file_name, date_time_created FROM image ORDER BY date_time_created DESC LIMIT 36`).all()
+    debug('found %s photos', rows.length)
+    const images = rows.map(i => {
       return {
         name: i.file_name,
         date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf()
       }
     })
+
     return res.format({
       'text/html': function () {
         debug('rendering text/html')
@@ -282,7 +280,10 @@ app.get('/view/:image', function (req, res, next) {
         res.status(406).send('Not Acceptable')
       }
     })
-  })
+  } catch (err) {
+    debug(err)
+    next(err)
+  }
 })
 
 const getFormData = multer().single()

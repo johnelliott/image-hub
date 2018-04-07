@@ -3,7 +3,7 @@ const debug = require('debug')('hub:etl')
 const path = require('path')
 const workerFarm = require('worker-farm')
 const watch = require('node-watch')
-const BetterSqlite3 = require('better-sqlite3')
+const Database = require('better-sqlite3')
 const createImages = require('./lib/schema.js').createImages
 
 require('dotenv').config()
@@ -24,7 +24,7 @@ if (!EXIFTOOL_PATH) {
 }
 debug('EXIFTOOL_PATH', EXIFTOOL_PATH)
 
-const db = new BetterSqlite3(path.join(__dirname, 'bcam.db'))
+const db = new Database(path.join(__dirname, 'cab.db'))
 try {
   const result = db.prepare(createImages).run()
   debug('db create result', result)
