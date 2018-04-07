@@ -1,10 +1,10 @@
 require('dotenv').config()
 const debug = require('debug')('hub:etl')
 const path = require('path')
-const workerFarm = require('worker-farm')
 const watch = require('node-watch')
 const Database = require('better-sqlite3')
 const createImages = require('./lib/schema.js').createImages
+const getDTO = require('./lib/exif.js')
 
 require('dotenv').config()
 
@@ -55,17 +55,6 @@ function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
   ).run()
 }
 
-const farmOptions = {
-  maxCallsPerWorker: 1,
-  maxConcurrentWorkers: require('os').cpus().length - 1,
-  maxConcurrentCallsPerWorker: 1
-  // maxConcurrentCalls: Infinity,
-  // maxCallTime: Infinity,
-  // maxRetries: Infinity,
-  // autoStart: false
-}
-const workers = workerFarm(farmOptions, require.resolve('./lib/getImageDataWorker'))
-
 if (require.main === module) {
   debug('watching')
   watch(STORAGE_PATH, {
@@ -74,11 +63,13 @@ if (require.main === module) {
   }, (evt, name) => {
     if (evt === 'update') {
       debug('Saw new image', name)
-      workers(name, (err, model) => {
+      getDTO(name, (err, DTO) => {
+        debug('running getDTO')
         if (err) {
           return debug('error in worker callback', err)
         }
-        debug('got model from worker', model.fileName)
+        const model = { dateTimeOriginal: DTO, fullPath: name, fileName: path.basename(name) }
+        debug('model', model)
         addImageToDatabase(model)
       })
     }
