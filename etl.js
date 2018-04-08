@@ -38,21 +38,14 @@ try {
   }
 }
 
+const insertImageData = db.prepare(
+  'INSERT OR REPLACE INTO image (\'id\', \'file_name\', \'date_time_created\', \'full_path\' \) values ((SELECT id FROM image WHERE full_path = @fullPath), @fileName, @dateTimeOriginal, @fullPath);'
+)
+
 function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
-  debug('Running insert', fileName)
-  db.prepare(
-    `INSERT OR REPLACE INTO image (
-      'id',
-      'file_name',
-      'date_time_created',
-      'full_path'
-    ) values (
-      (SELECT id FROM image WHERE full_path = '${fullPath}'),
-      '${fileName}',
-      '${dateTimeOriginal}',
-      '${fullPath}'
-    );`
-  ).run()
+  debug('insert', fileName)
+  const inserted = insertImageData.run({ fileName, dateTimeOriginal, fullPath })
+  debug('inserted', inserted)
 }
 
 if (require.main === module) {
@@ -62,14 +55,11 @@ if (require.main === module) {
     recursive: true
   }, (evt, name) => {
     if (evt === 'update') {
-      debug('Saw new image', name)
       getDTO(name, (err, DTO) => {
-        debug('running getDTO')
         if (err) {
           return debug('error in worker callback', err)
         }
         const model = { dateTimeOriginal: DTO, fullPath: name, fileName: path.basename(name) }
-        debug('model', model)
         addImageToDatabase(model)
       })
     }
