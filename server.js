@@ -51,7 +51,10 @@ try {
     process.exit(1)
   }
 }
-
+// Prepared DB statements
+const deleteFromImage = db.prepare('delete from image')
+const get36Images = db.prepare('select file_name, date_time_created from image order by date_time_created desc limit 36')
+const get36ImagesSince = db.prepare('select file_name, date_time_created, (select date_time_created from image where file_name = @since) as sinceDateTime from image where date_time_created < sinceDateTime order by date_time_created desc limit 36')
 /**
  * Resize small images to disk
  */
@@ -102,7 +105,7 @@ function clearDB () {
   debug('running db command')
   return new Promise((resolve, reject) => {
     try {
-      db.prepare('delete from image').run()
+      deleteFromImage.run()
     } catch (err) {
       debug(err)
       return reject(err)
@@ -189,25 +192,14 @@ chooApp.route('/view/:image', detail)
 
 app.get('/', function (req, res, next) {
   const since = req.query.since
-
-  let selectSinceDateTimeClause = ''
-  let whereClause = ''
-  if (since) {
-    debug('req.query.since', since)
-    selectSinceDateTimeClause = `, (select date_time_created from image where file_name = '${since}') as sinceDateTime`
-    whereClause = 'where date_time_created < sinceDateTime'
-  }
-
+  let rows
   try {
-    const rows = db.prepare(
-      `select file_name, date_time_created
-      ${selectSinceDateTimeClause}
-      from image
-      ${whereClause}
-      order by date_time_created desc
-      limit 36`
-    ).all()
-
+    if (since) {
+      debug('req.query.since', since)
+      rows = get36ImagesSince.all({ since })
+    } else {
+      rows = get36Images.all()
+    }
     debug('found %s photos', rows.length)
     const images = rows.map(i => {
       debug('image', i)
@@ -248,7 +240,7 @@ app.get('/', function (req, res, next) {
 app.get('/view/:image', function (req, res, next) {
   debug('hit view route for %s', req.params.image)
   try {
-    const rows = db.prepare(`SELECT file_name, date_time_created FROM image ORDER BY date_time_created DESC LIMIT 36`).all()
+    const rows = get36Images.all()
     debug('found %s photos', rows.length)
     const images = rows.map(i => {
       return {
