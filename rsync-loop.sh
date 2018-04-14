@@ -7,7 +7,7 @@ command -v $rsync >/dev/null 2>&1 || { echo >&2 "I require $rsync but it's not i
 
 CARD_DEV='sda1'
 CARD_MOUNT_POINT='/media/card'
-STORAGE_DIR='/home/pi/image-hub/media/storage'
+STORAGE_DIR="$MEDIA_DIR/storage"
 
 echo start
 

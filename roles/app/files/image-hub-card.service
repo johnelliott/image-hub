@@ -4,6 +4,7 @@ After=multi-user.target
 
 [Service]
 WorkingDirectory=/home/pi/image-hub
+EnvironmentFile=/home/pi/image-hub/.env
 Type=simple
 ExecStart=/bin/bash /home/pi/image-hub/rsync-loop.sh
 Restart=always
