@@ -6,13 +6,16 @@ const express = require('express')
 const multer = require('multer')
 const sharp = require('sharp')
 const rimraf = require('rimraf')
-const Database = require('better-sqlite3')
-const { createImages } = require('./lib/schema.js')
 const story = require('./lib/treatments/story.js')
 const isGmColor = require('./lib/isGmColor')
 const choo = require('choo')
 const grid = require('./client/grid.js')
 const detail = require('./client/detail.js')
+const {
+  deleteFromImage,
+  get36Images,
+  get36ImagesSince
+} = require('./lib/db.js')
 
 const DISABLE_SERVER_RENDER = process.env.DISABLE_SERVER_RENDER === 'true'
 const INITIAL_STATIC_SERVER = process.env.INITIAL_STATIC_SERVER === 'true'
@@ -34,27 +37,6 @@ const THUMB_PATH = path.join(MEDIA_PATH, THUMB)
 const STORAGE_PATH = path.join(MEDIA_PATH, STORAGE)
 const STORIES_PATH = path.join(MEDIA_PATH, STORIES)
 
-// Server state
-let storyColor
-
-// Connect to a database file
-const db = new Database(path.join(__dirname, 'cab.db'))
-try {
-  const result = db.prepare(createImages).run()
-  debug('db create result', result)
-} catch (err) {
-  if (err && err.message.match(/table image already exists/)) {
-    debug('image table exists')
-  } else if (err) {
-    debug('db create image table error', err)
-    console.error(err)
-    process.exit(1)
-  }
-}
-// Prepared DB statements
-const deleteFromImage = db.prepare('delete from image')
-const get36Images = db.prepare('select file_name, date_time_created from image order by date_time_created desc limit 36')
-const get36ImagesSince = db.prepare('select file_name, date_time_created, (select date_time_created from image where file_name = @since) as sinceDateTime from image where date_time_created < sinceDateTime order by date_time_created desc limit 36')
 /**
  * Resize small images to disk
  */
@@ -138,7 +120,7 @@ app.get('/stories/:image', function (req, res, next) {
   const sourceImagePath = path.join(STORAGE_PATH, req.params.image)
   const imageMattPath = path.join(STORIES_PATH, req.params.image)
   debug('matt path', imageMattPath)
-  return story(sourceImagePath, imageMattPath, storyColor)
+  return story(sourceImagePath, imageMattPath, app.locals.storyColor)
     .then(result => {
       debug('story created', result)
       next()
@@ -202,7 +184,6 @@ app.get('/', function (req, res, next) {
     }
     debug('found %s photos', rows.length)
     const images = rows.map(i => {
-      debug('image', i)
       return {
         name: i.file_name,
         date: new Date(i.date_time_created.replace(/-/g, '/')).valueOf()
@@ -299,7 +280,7 @@ app.post('/admin', getFormData, function handleFormData (req, res, next) {
   const command = req.body.command.toLowerCase()
   let commandResult
   if (isGmColor(command)) {
-    storyColor = command
+    app.locals.storyColor = command
     commandResult = Promise.resolve(`ig story color set to ${command}`)
   } else if (commands[command]) {
     debug('doing command', req.body.command)

@@ -2,8 +2,7 @@ require('dotenv').config()
 const debug = require('debug')('hub:etl')
 const path = require('path')
 const watch = require('node-watch')
-const Database = require('better-sqlite3')
-const createImages = require('./lib/schema.js').createImages
+const { insertImage } = require('./lib/db.js')
 const getDTO = require('./lib/exif.js')
 
 require('dotenv').config()
@@ -24,27 +23,9 @@ if (!EXIFTOOL_PATH) {
 }
 debug('EXIFTOOL_PATH', EXIFTOOL_PATH)
 
-const db = new Database(path.join(__dirname, 'cab.db'))
-try {
-  const result = db.prepare(createImages).run()
-  debug('db create result', result)
-} catch (err) {
-  if (err && err.message.match(/table image already exists/)) {
-    debug('image table exists')
-  } else if (err) {
-    debug('db create image table error', err)
-    console.error(err)
-    process.exit(1)
-  }
-}
-
-const insertImageData = db.prepare(
-  'INSERT OR REPLACE INTO image (\'id\', \'file_name\', \'date_time_created\', \'full_path\' \) values ((SELECT id FROM image WHERE full_path = @fullPath), @fileName, @dateTimeOriginal, @fullPath);'
-)
-
 function addImageToDatabase ({ fileName, dateTimeOriginal, fullPath }) {
   debug('insert', fileName)
-  const inserted = insertImageData.run({ fileName, dateTimeOriginal, fullPath })
+  const inserted = insertImage.run({ fileName, dateTimeOriginal, fullPath })
   debug('inserted', inserted)
 }
 
