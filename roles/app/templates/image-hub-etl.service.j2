@@ -3,8 +3,7 @@ Description=JPG to Sqlite ETL Service
 After=network.target
 
 [Service]
-Environment=STORAGE_PATH=/media/storage
-Environment=EXIFTOOL_PATH=/usr/bin/exiftool
+EnvironmentFile=/home/pi/image-hub/.env
 Type=simple
 WorkingDirectory=/home/pi/image-hub
 ExecStart=/home/pi/.nvm/versions/node/{{ node_version }}/bin/node /home/pi/image-hub/etl.js
