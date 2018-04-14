@@ -4,10 +4,14 @@
 rsync="/usr/bin/rsync"
 command -v $rsync >/dev/null 2>&1 || { echo >&2 "I require $rsync but it's not installed"; exit 1; }
 # TODO other commands like ls, lsusb, mount, etc
+if [ -z "$MEDIA_PATH" ]
+then
+echo >&2 "MEDIA_PATH must be set"; exit 1;
+fi
 
 CARD_DEV='sda1'
 CARD_MOUNT_POINT='/media/card'
-STORAGE_DIR="$MEDIA_DIR/storage"
+STORAGE_DIR="$MEDIA_PATH/storage"
 
 echo start
 
@@ -30,6 +34,7 @@ do
   if [ -n "$(ls /dev/* | grep $CARD_DEV | cut -d"/" -f3)" ]
   then
     echo found card
+    # TODO make this reference the mount point var
     if [ -z "$(ls /media/card)" ]
     then
       mount /dev/$CARD_DEV $CARD_MOUNT_POINT
