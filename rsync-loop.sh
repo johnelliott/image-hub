@@ -7,7 +7,7 @@ command -v $rsync >/dev/null 2>&1 || { echo >&2 "I require $rsync but it's not i
 
 CARD_DEV='sda1'
 CARD_MOUNT_POINT='/media/card'
-STORAGE_DIR='/media/storage'
+STORAGE_DIR='/home/pi/image-hub/media/storage'
 
 echo start
 
@@ -45,7 +45,7 @@ do
     echo start rsync
     shopt -s globstar
     JPEGS="$CARD_MOUNT_POINT/**/*JPG" 
-    rsync -avh $JPEGS $STORAGE_DIR/
+    rsync --bwlimit=5m -avh $JPEGS $STORAGE_DIR/
     echo end rsync
 
     # Unmount the SD card

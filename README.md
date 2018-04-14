@@ -30,11 +30,13 @@ media
 place a file named `.env` in the project directory:
 ```ini
 DISABLE_SERVER_RENDER=false
-INITIAL_STATIC_SERVER=false
 EXIFTOOL_PATH=/bin/exiftool
 HOST=localhost
+INITIAL_STATIC_SERVER=false
 MEDIA_PATH=/media
 PORT=3000
+SQLITE_USE_WAL_MODE=true
+SQLITE_WAL_CHECK_INTERVAL_SECONDS=10
 ```
 
 ## run locally
