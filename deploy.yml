@@ -1,8 +1,8 @@
 ---
 - hosts: hubs
   vars:
-    nvm_version: v0.33.8
-    node_version: v8.11.0
+    nvm_version: v0.33.11
+    node_version: v8.11.3
   roles:
   - base
   - node
@@ -10,11 +10,13 @@
 
 - hosts: display-hubs
   vars:
-    nvm_version: v0.33.8
-    node_version: v8.11.0
+    nvm_version: v0.33.11
+    node_version: v8.11.3
   roles:
   - display
 
 - hosts: cloud-servers
+  vars:
+    local_wifi_page_path: ./www-wifi-page
   roles:
   - www-wifi-page
