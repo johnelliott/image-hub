@@ -6,7 +6,7 @@
     - git
 
 # Node.js
-- name: Install nvm
+- name: install nvm
   git: repo=https://github.com/creationix/nvm.git dest=/home/{{ user }}/.nvm version={{ nvm_version }}
 - name: configure ~/.profile to source nvm
   lineinfile:
