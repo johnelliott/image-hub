@@ -1,6 +1,9 @@
 # Image Hub 👁
 Helper hardware to rapidly share images from a digital camera
 
+
+![Image of Image Hub](https://github.com/johnelliott/image-hub/raw/master/ih.jpg)
+
 Image Hub is a computer that joins your Wifi and accepts your camera memory card. It ingests JPEG images, creates a gallery web-app, and serves the app over the local network. Image Hub provides image browsing and saving for publishing to Instagram stories, facebook or other social media.
 
 The intended hardware is a Raspberry Pi 3 board, USB card reader, and USB power bank. A little OLED display is optional.
